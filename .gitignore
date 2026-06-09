@@ -4,6 +4,8 @@ out
 .vercel
 .env
 .env*.local
+.env.*
+!.env.example
 .local-blob
 .next-dev*.log
 *.tsbuildinfo

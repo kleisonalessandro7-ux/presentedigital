@@ -14,10 +14,19 @@ type GiftPageProps = {
   };
 };
 
+async function safeReadGift(slug: string) {
+  try {
+    return await readGiftBySlug(slug);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 export async function generateMetadata({
   params
 }: GiftPageProps): Promise<Metadata> {
-  const gift = await readGiftBySlug(params.slug);
+  const gift = await safeReadGift(params.slug);
 
   if (!gift) {
     return {
@@ -44,7 +53,7 @@ export async function generateMetadata({
 }
 
 export default async function GiftPage({ params }: GiftPageProps) {
-  const gift = await readGiftBySlug(params.slug);
+  const gift = await safeReadGift(params.slug);
 
   if (!gift) {
     notFound();

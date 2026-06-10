@@ -63,6 +63,7 @@ import { ensureSlug, sanitizeFilename, shortId } from "@/lib/slug";
 type GiftBuilderProps = {
   initialGifts: GiftIndexItem[];
   blobConfigured: boolean;
+  storageError?: string;
 };
 
 const steps = [
@@ -812,7 +813,7 @@ function giftToDraft(gift: Partial<GiftData> & Partial<DraftGift> & { slug?: str
   });
 }
 
-export function GiftBuilder({ initialGifts, blobConfigured }: GiftBuilderProps) {
+export function GiftBuilder({ initialGifts, blobConfigured, storageError }: GiftBuilderProps) {
   const [draft, setDraft] = useState<DraftGift>(() => ({
     ...initialDraft,
     slug: `presente-${shortId()}`
@@ -1344,6 +1345,16 @@ export function GiftBuilder({ initialGifts, blobConfigured }: GiftBuilderProps) 
             </button>
           </div>
         </header>
+
+        {storageError ? (
+          <div className="rounded-2xl border border-rose-400/30 bg-rose-950/50 p-4 text-sm text-rose-100">
+            <p className="font-bold text-white">A conexao com o armazenamento falhou.</p>
+            <p className="mt-1">{storageError}</p>
+            <p className="mt-2 text-rose-100/80">
+              Confira as variaveis do Supabase e faca um novo deploy na Vercel.
+            </p>
+          </div>
+        ) : null}
 
         <section className="grid gap-4 rounded-2xl border border-white/10 bg-slate-950/48 p-4 backdrop-blur-xl xl:grid-cols-[minmax(0,1fr)_360px]">
           <div>

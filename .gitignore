@@ -8,4 +8,5 @@ out
 !.env.example
 .local-blob
 .next-dev*.log
+.next-start*.log
 *.tsbuildinfo

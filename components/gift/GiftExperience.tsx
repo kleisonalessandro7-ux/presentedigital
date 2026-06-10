@@ -1314,7 +1314,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
             <AnimatePresence mode="wait">
               <motion.section
                 key={currentSlide.id}
-                className={`mobile-safe-slide relative flex h-full items-start justify-center overflow-y-auto overscroll-contain px-4 pb-40 pt-24 sm:items-center sm:px-10 sm:pb-36 sm:pt-28 ${
+                className={`mobile-safe-slide relative flex h-full items-start justify-center overflow-y-auto overscroll-contain px-4 pb-44 pt-32 sm:px-10 sm:pb-48 sm:pt-40 ${
                   experienceStyle === "scrapbook" ? "scrapbook-scene" : ""
                 }`}
                 initial={{ opacity: 0, y: 28, scale: 0.99 }}
@@ -1519,7 +1519,7 @@ function WelcomeSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual })
           Para {gift.recipientName}
         </motion.p>
         <motion.h1
-          className="ink-title break-words font-display text-6xl leading-tight sm:text-8xl"
+          className="ink-title break-words font-display slide-title-safe"
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.25, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
@@ -1609,7 +1609,7 @@ function PersonalSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual }
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Entre nós
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Coisas que pertencem só à nossa história.
       </h2>
       <div className="mt-10 grid gap-4 lg:grid-cols-3">
@@ -1652,7 +1652,7 @@ function TimelineSlide({
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Linha do tempo
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Alguns capítulos que trouxeram a gente até aqui.
       </h2>
       <div className="relative mt-10">
@@ -1702,7 +1702,7 @@ function CouponsSlide({
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Vales de amor
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Cupons para usar quando o coração pedir.
       </h2>
       <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -1780,7 +1780,7 @@ function ChaptersSlide({
         animate={{ opacity: 1, y: 0 }}
       >
         <BookOpen size={28} className="mb-6 text-pink-100" aria-hidden="true" />
-        <h2 className="font-display text-5xl leading-tight sm:text-7xl">
+        <h2 className="font-display slide-title-safe">
           {current.title}
         </h2>
         <p className={`mt-6 whitespace-pre-wrap text-xl leading-9 ${visual.muted}`}>
@@ -1914,7 +1914,7 @@ function ConstellationSlide({
         <p className={`mb-4 text-sm font-bold uppercase ${visual.accent}`}>
           Constelação de nós dois
         </p>
-        <h2 className="font-display text-5xl leading-tight sm:text-7xl">
+        <h2 className="font-display slide-title-safe">
           Há frases escondidas nas estrelas.
         </h2>
         <motion.p
@@ -1978,7 +1978,7 @@ function ReasonsSlide({ reasons, visual }: { reasons: string[]; visual: ThemeVis
         <p className={`mb-5 text-sm font-bold uppercase ${visual.accent}`}>
           Chuva de motivos
         </p>
-        <h2 className="max-w-3xl font-display text-5xl leading-tight sm:text-7xl">
+        <h2 className="max-w-3xl font-display slide-title-safe">
           Algumas razões pelas quais você é inesquecível.
         </h2>
       </div>
@@ -1992,7 +1992,7 @@ function PlacesSlide({ places, visual }: { places: GiftPlace[]; visual: ThemeVis
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Mapa afetivo
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Lugares que guardam a gente.
       </h2>
       <div className="relative mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -2045,7 +2045,7 @@ function PhotoSlide({
     photo.captionPosition === "center"
       ? "inset-0 flex items-center px-5 sm:px-12"
       : photo.captionPosition === "top"
-        ? "inset-x-0 top-0 px-5 pt-28 sm:px-12"
+        ? "inset-x-0 top-0 px-5 pt-36 sm:px-12 sm:pt-40"
         : "inset-x-0 bottom-0 px-5 pb-32 sm:px-12";
 
   return (
@@ -2091,7 +2091,7 @@ function PhotoSlide({
                 {photo.memoryDate ? ` • ${formatDate(photo.memoryDate)}` : ""}
                 {photo.location ? ` • ${photo.location}` : ""}
               </p>
-              <h2 className="font-display text-5xl leading-tight text-white sm:text-7xl">
+              <h2 className="font-display slide-title-safe text-white">
                 {photo.caption || "Um instante que ficou."}
               </h2>
             </>
@@ -2134,7 +2134,7 @@ function VideoSlide({ video, visual }: { video: GiftVideo; visual: ThemeVisual }
       </div>
       <div>
         <p className={`mb-4 text-sm font-bold uppercase ${visual.accent}`}>Vídeo</p>
-        <h2 className="font-display text-5xl leading-tight sm:text-7xl">
+        <h2 className="font-display slide-title-safe">
           {video.caption || "Um pedacinho vivo da nossa história."}
         </h2>
         <p className={`mt-6 text-lg leading-8 ${visual.muted}`}>
@@ -2164,7 +2164,7 @@ function ScratchSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual })
       <p className={`mb-5 text-sm font-bold uppercase ${visual.accent}`}>
         Raspadinha de sentimento
       </p>
-      <h2 className="font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="font-display slide-title-safe">
         Passe o dedo para revelar.
       </h2>
       <div
@@ -2196,7 +2196,7 @@ function CapsuleSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual })
       <p className={`mb-5 text-sm font-bold uppercase ${visual.accent}`}>
         Cápsula do tempo
       </p>
-      <h2 className="font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="font-display slide-title-safe">
         {unlocked ? "A carta do futuro abriu." : "Tem uma carta esperando o dia certo."}
       </h2>
       <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-white/14 bg-white/10 p-6 shadow-violet backdrop-blur-xl">
@@ -2278,7 +2278,7 @@ function PromisesSlide({ promises, visual }: { promises: string[]; visual: Theme
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Promessas
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Coisas que eu quero continuar fazendo por nós.
       </h2>
       <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -2319,7 +2319,7 @@ function AlbumSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual }) {
       <p className={`mb-5 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Álbum final
       </p>
-      <h2 className="mx-auto max-w-4xl text-center font-display text-5xl leading-tight sm:text-7xl">
+      <h2 className="mx-auto max-w-4xl text-center font-display slide-title-safe">
         Tudo isso também é um jeito de dizer amor.
       </h2>
       <div className="mt-9 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -2519,7 +2519,7 @@ function EndingSlide({
     <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
       <div>
         <p className={`mb-5 text-sm font-bold uppercase ${visual.accent}`}>Final</p>
-        <h2 className="break-words font-display text-5xl leading-tight sm:text-7xl">
+        <h2 className="break-words font-display slide-title-safe">
           {gift.recipientName}, este presente continua quando você quiser.
         </h2>
         <p className={`mt-6 max-w-2xl text-lg leading-8 ${visual.muted}`}>

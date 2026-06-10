@@ -29,6 +29,8 @@ import {
   Palette,
   PencilLine,
   Plus,
+  Printer,
+  QrCode,
   RotateCcw,
   Save,
   Shield,
@@ -64,6 +66,7 @@ type GiftBuilderProps = {
   initialGifts: GiftIndexItem[];
   blobConfigured: boolean;
   storageError?: string;
+  currentUserEmail?: string;
 };
 
 const steps = [
@@ -813,7 +816,12 @@ function giftToDraft(gift: Partial<GiftData> & Partial<DraftGift> & { slug?: str
   });
 }
 
-export function GiftBuilder({ initialGifts, blobConfigured, storageError }: GiftBuilderProps) {
+export function GiftBuilder({
+  initialGifts,
+  blobConfigured,
+  storageError,
+  currentUserEmail
+}: GiftBuilderProps) {
   const [draft, setDraft] = useState<DraftGift>(() => ({
     ...initialDraft,
     slug: `presente-${shortId()}`
@@ -1319,6 +1327,11 @@ export function GiftBuilder({ initialGifts, blobConfigured, storageError }: Gift
             <span className="rounded-full border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300">
               {blobConfigured ? "Vercel Blob ativo" : "Modo local"}
             </span>
+            {currentUserEmail ? (
+              <span className="max-w-[220px] truncate rounded-full border border-pink-200/20 bg-pink-500/10 px-3 py-2 text-xs font-semibold text-pink-100">
+                {currentUserEmail}
+              </span>
+            ) : null}
             <button
               type="button"
               onClick={openRecipientPreview}
@@ -1507,6 +1520,24 @@ export function GiftBuilder({ initialGifts, blobConfigured, storageError }: Gift
                         >
                           Duplicar
                         </button>
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <Link
+                          href={`/presente/${gift.slug}/imprimir?tipo=convite`}
+                          target="_blank"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10"
+                        >
+                          <QrCode size={13} aria-hidden="true" />
+                          Convite
+                        </Link>
+                        <Link
+                          href={`/presente/${gift.slug}/imprimir?tipo=cupons`}
+                          target="_blank"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10"
+                        >
+                          <Printer size={13} aria-hidden="true" />
+                          Cupons
+                        </Link>
                       </div>
                     </div>
                   ))}

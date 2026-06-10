@@ -1,16 +1,26 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { LockKeyhole, Sparkles } from "lucide-react";
+import { LockKeyhole, Sparkles, UserRound } from "lucide-react";
 
 type LoginFormProps = {
   passwordConfigured: boolean;
+  authConfigured: boolean;
+  authProviders: string[];
 };
 
-export function LoginForm({ passwordConfigured }: LoginFormProps) {
+const providerLabels: Record<string, string> = {
+  google: "Google",
+  github: "GitHub",
+  facebook: "Facebook",
+  discord: "Discord"
+};
+
+export function LoginForm({ passwordConfigured, authConfigured, authProviders }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const showPasswordForm = passwordConfigured || !authConfigured;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,13 +59,38 @@ export function LoginForm({ passwordConfigured }: LoginFormProps) {
           </div>
         </div>
 
-        {!passwordConfigured ? (
+        {!passwordConfigured && !authConfigured ? (
           <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
             Configure a variável ADMIN_PASSWORD antes de entrar.
           </div>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+        {authConfigured ? (
+          <div className="mt-6 space-y-3">
+            {authProviders.map((provider) => (
+              <a
+                key={provider}
+                href={`/api/auth/sign-in?provider=${provider}`}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-slate-950 shadow-glow transition hover:bg-pink-100"
+              >
+                <UserRound size={17} aria-hidden="true" />
+                Entrar com {providerLabels[provider] || provider}
+              </a>
+            ))}
+            {passwordConfigured ? (
+              <div className="flex items-center gap-3 py-2">
+                <span className="h-px flex-1 bg-white/10" />
+                <span className="text-xs font-bold uppercase text-slate-400">
+                  ou senha do admin
+                </span>
+                <span className="h-px flex-1 bg-white/10" />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {showPasswordForm ? (
+          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div>
             <label htmlFor="password" className="admin-label">
               Senha
@@ -87,7 +122,8 @@ export function LoginForm({ passwordConfigured }: LoginFormProps) {
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
-        </form>
+          </form>
+        ) : null}
       </div>
     </main>
   );

@@ -122,6 +122,7 @@ export type GiftIndexItem = {
   specialDate: string;
   theme: GiftTheme;
   photoCount: number;
+  ownerEmail?: string;
   createdAt: string;
   updatedAt: string;
 };

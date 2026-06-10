@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { detectMediaType } from "@/lib/media";
 import { createUniqueGiftSlug, readGiftIndex, saveGift } from "@/lib/storage";
+import { getCurrentUser } from "@/lib/user-auth";
 import type {
   DraftGift,
   CaptionPosition,
@@ -284,15 +285,19 @@ function normalizePhotos(photos: unknown): GiftPhoto[] {
 }
 
 export async function GET() {
-  if (!isAdminAuthenticated()) {
+  const currentUser = await getCurrentUser();
+
+  if (!isAdminAuthenticated() && !currentUser) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  return NextResponse.json(await readGiftIndex());
+  return NextResponse.json(await readGiftIndex(currentUser?.id));
 }
 
 export async function POST(request: Request) {
-  if (!isAdminAuthenticated()) {
+  const currentUser = await getCurrentUser();
+
+  if (!isAdminAuthenticated() && !currentUser) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
@@ -392,7 +397,10 @@ export async function POST(request: Request) {
     updatedAt: now
   };
 
-  await saveGift(gift);
+  await saveGift(gift, {
+    ownerId: currentUser?.id,
+    ownerEmail: currentUser?.email || undefined
+  });
 
   return NextResponse.json({
     gift,

@@ -112,15 +112,21 @@ export function createEmptyGiftIndex(): GiftIndex {
   };
 }
 
-export async function readGiftIndex() {
+export async function readGiftIndex(ownerId?: string) {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
+    let query = supabase
       .from("gifts")
       .select(
-        "slug, creator_name, recipient_name, special_date, theme, photo_count, created_at, updated_at"
+        "slug, creator_name, recipient_name, special_date, theme, photo_count, owner_email, created_at, updated_at"
       )
       .order("created_at", { ascending: false });
+
+    if (ownerId) {
+      query = query.eq("owner_id", ownerId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(`Erro ao listar presentes no Supabase: ${error.message}`);
@@ -135,6 +141,7 @@ export async function readGiftIndex() {
         specialDate: row.special_date,
         theme: row.theme,
         photoCount: row.photo_count,
+        ownerEmail: row.owner_email || undefined,
         createdAt: row.created_at,
         updatedAt: row.updated_at
       }))
@@ -152,16 +159,21 @@ export async function saveGiftIndex(index: GiftIndex) {
   return putJsonBlob("gifts/index.json", index, { allowOverwrite: true });
 }
 
-export async function readGiftBySlug(slug: string) {
+export async function readGiftBySlug(slug: string, ownerId?: string) {
   const cleanSlug = ensureSlug(slug);
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
+    let query = supabase
       .from("gifts")
       .select("data")
-      .eq("slug", cleanSlug)
-      .maybeSingle();
+      .eq("slug", cleanSlug);
+
+    if (ownerId) {
+      query = query.eq("owner_id", ownerId);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       throw new Error(`Erro ao ler presente no Supabase: ${error.message}`);
@@ -173,16 +185,16 @@ export async function readGiftBySlug(slug: string) {
   return readJsonBlob<GiftData | null>(`gifts/${cleanSlug}.json`, null);
 }
 
-export async function giftExists(slug: string) {
-  return Boolean(await readGiftBySlug(slug));
+export async function giftExists(slug: string, ownerId?: string) {
+  return Boolean(await readGiftBySlug(slug, ownerId));
 }
 
-export async function createUniqueGiftSlug(slug: string) {
+export async function createUniqueGiftSlug(slug: string, ownerId?: string) {
   const base = ensureSlug(slug);
   let candidate = base;
   let attempt = 2;
 
-  while (await giftExists(candidate)) {
+  while (await giftExists(candidate, ownerId)) {
     candidate = `${base}-${attempt}`;
     attempt += 1;
   }
@@ -190,10 +202,13 @@ export async function createUniqueGiftSlug(slug: string) {
   return candidate;
 }
 
-export async function saveGift(gift: GiftData, options: { allowOverwrite?: boolean } = {}) {
+export async function saveGift(
+  gift: GiftData,
+  options: { allowOverwrite?: boolean; ownerId?: string; ownerEmail?: string } = {}
+) {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase.from("gifts").upsert({
+    const row = {
       slug: gift.slug,
       creator_name: gift.creatorName,
       recipient_name: gift.recipientName,
@@ -203,7 +218,14 @@ export async function saveGift(gift: GiftData, options: { allowOverwrite?: boole
       data: gift,
       created_at: gift.createdAt,
       updated_at: gift.updatedAt
-    });
+    } as Record<string, unknown>;
+
+    if (options.ownerId) {
+      row.owner_id = options.ownerId;
+      row.owner_email = options.ownerEmail || null;
+    }
+
+    const { error } = await supabase.from("gifts").upsert(row);
 
     if (error) {
       throw new Error(`Erro ao salvar presente no Supabase: ${error.message}`);

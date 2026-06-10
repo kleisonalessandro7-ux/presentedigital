@@ -561,26 +561,43 @@ function GiftQrCode({ onReady }: { onReady?: (dataUrl: string) => void }) {
 }
 
 function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; initiallyOpen: boolean }) {
-  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"open" | "minimized" | "hidden">("minimized");
   const isSpotify = mediaEmbedUrl.includes("spotify.com");
 
   useEffect(() => {
-    setOpen(initiallyOpen && window.innerWidth >= 768);
+    setMode(initiallyOpen && window.innerWidth >= 768 ? "open" : "minimized");
   }, [initiallyOpen]);
 
   return (
     <div className="fixed bottom-[10.75rem] right-4 z-40 w-[min(22rem,calc(100vw-2rem))] text-white sm:bottom-24">
-      {open ? (
-        <div className="overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl">
+      <div
+        className={`overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl transition duration-300 ${
+          mode === "open"
+            ? "translate-x-0 opacity-100"
+            : mode === "minimized"
+              ? "pointer-events-none translate-y-4 scale-95 opacity-0"
+              : "pointer-events-none translate-x-[calc(100%+2rem)] opacity-0"
+        }`}
+        aria-hidden={mode !== "open"}
+      >
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-xs font-bold uppercase text-pink-100">Trilha sonora</p>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
-            >
-              Minimizar
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMode("minimized")}
+                className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
+              >
+                Minimizar
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("hidden")}
+                className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
+              >
+                Esconder
+              </button>
+            </div>
           </div>
           <iframe
             title="Trilha sonora do presente"
@@ -589,17 +606,20 @@ function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; in
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
           />
-        </div>
-      ) : (
+      </div>
+
+      {mode !== "open" ? (
         <button
           type="button"
-          onClick={() => setOpen(true)}
-          className="ml-auto flex h-12 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl"
+          onClick={() => setMode("open")}
+          className={`ml-auto flex h-12 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition ${
+            mode === "hidden" ? "opacity-60" : "opacity-100"
+          }`}
         >
           <Volume2 size={17} aria-hidden="true" />
-          Tocar trilha
+          {mode === "hidden" ? "Mostrar trilha" : "Tocar trilha"}
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -778,7 +798,6 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const [holdTick, setHoldTick] = useState(0);
   const [shareUrl, setShareUrl] = useState("");
   const [printQrUrl, setPrintQrUrl] = useState("");
-  const [printMode, setPrintMode] = useState<PrintMode | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentSlide = slides[current];
   const primary = gift.primaryColor || "#ec4899";
@@ -872,12 +891,8 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }
 
   function printSheet(mode: PrintMode) {
-    if (!printQrUrl) {
-      return;
-    }
-
-    setPrintMode(mode);
-    window.setTimeout(() => window.print(), 90);
+    const type = mode === "coupons" ? "cupons" : "convite";
+    window.open(`/presente/${gift.slug}/imprimir?tipo=${type}`, "_blank", "noopener,noreferrer");
   }
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
@@ -929,27 +944,6 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }, [shareUrl]);
 
   useEffect(() => {
-    const root = document.documentElement;
-
-    if (!printMode) {
-      root.removeAttribute("data-print-mode");
-      return;
-    }
-
-    root.setAttribute("data-print-mode", printMode);
-
-    const clearPrintMode = () => {
-      root.removeAttribute("data-print-mode");
-      setPrintMode(null);
-    };
-
-    window.addEventListener("afterprint", clearPrintMode);
-    return () => {
-      window.removeEventListener("afterprint", clearPrintMode);
-    };
-  }, [printMode]);
-
-  useEffect(() => {
     if (holdUntil <= Date.now()) {
       return;
     }
@@ -997,7 +991,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
 
   return (
     <main
-      className={`gift-experience relative h-[100svh] overflow-hidden ${visual.text}`}
+      className={`gift-experience ${gift.theme === "floral-light" ? "gift-experience-light" : ""} relative h-[100svh] overflow-hidden ${visual.text}`}
       onPointerMove={(event) =>
         setMouse({
           x: Math.round((event.clientX / window.innerWidth) * 100),
@@ -1658,8 +1652,8 @@ function ConstellationSlide({
   );
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="relative aspect-[1.45] min-h-[360px] overflow-hidden rounded-2xl border border-white/12 bg-black/20 shadow-violet backdrop-blur-xl">
+    <div className="mx-auto grid w-full max-w-6xl items-center gap-5 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="relative mx-auto aspect-square w-full max-w-[min(78vw,320px)] overflow-hidden rounded-2xl border border-white/12 bg-black/20 shadow-violet backdrop-blur-xl sm:aspect-[1.45] sm:max-w-none sm:min-h-[360px]">
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
           <polyline
             points={stars.slice(0, 9).map((star) => `${star.x},${star.y}`).join(" ")}
@@ -1691,7 +1685,7 @@ function ConstellationSlide({
           />
         ))}
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="font-display text-8xl text-white/10 sm:text-9xl">{initials}</p>
+          <p className="font-display text-6xl text-white/10 sm:text-9xl">{initials}</p>
         </div>
       </div>
       <div>
@@ -1703,7 +1697,7 @@ function ConstellationSlide({
         </h2>
         <motion.p
           key={selected}
-          className={`mt-7 rounded-2xl border border-white/12 bg-white/10 p-5 text-xl leading-8 backdrop-blur-xl ${visual.muted}`}
+          className={`mt-5 rounded-2xl border border-white/12 bg-white/10 p-4 text-lg leading-7 backdrop-blur-xl sm:mt-7 sm:p-5 sm:text-xl sm:leading-8 ${visual.muted}`}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
         >

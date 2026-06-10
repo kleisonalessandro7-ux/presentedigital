@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { detectMediaType } from "@/lib/media";
 import { readGiftBySlug, saveGift } from "@/lib/storage";
+import { getCurrentUser } from "@/lib/user-auth";
 import type {
   DraftGift,
   ExperienceStyle,
@@ -150,11 +151,13 @@ export async function GET(
   _request: Request,
   { params }: { params: { slug: string } }
 ) {
-  if (!isAdminAuthenticated()) {
+  const currentUser = await getCurrentUser();
+
+  if (!isAdminAuthenticated() && !currentUser) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const gift = await readGiftBySlug(params.slug);
+  const gift = await readGiftBySlug(params.slug, currentUser?.id);
 
   if (!gift) {
     return NextResponse.json({ error: "Presente não encontrado." }, { status: 404 });
@@ -167,11 +170,13 @@ export async function PUT(
   request: Request,
   { params }: { params: { slug: string } }
 ) {
-  if (!isAdminAuthenticated()) {
+  const currentUser = await getCurrentUser();
+
+  if (!isAdminAuthenticated() && !currentUser) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const existing = await readGiftBySlug(params.slug);
+  const existing = await readGiftBySlug(params.slug, currentUser?.id);
 
   if (!existing) {
     return NextResponse.json({ error: "Presente não encontrado." }, { status: 404 });
@@ -249,7 +254,11 @@ export async function PUT(
     updatedAt: new Date().toISOString()
   };
 
-  await saveGift(gift, { allowOverwrite: true });
+  await saveGift(gift, {
+    allowOverwrite: true,
+    ownerId: currentUser?.id,
+    ownerEmail: currentUser?.email || undefined
+  });
 
   return NextResponse.json({
     gift,

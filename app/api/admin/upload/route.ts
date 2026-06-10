@@ -2,6 +2,7 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { ensureSlug } from "@/lib/slug";
+import { getCurrentUser } from "@/lib/user-auth";
 import {
   isBlobConfigured,
   saveLocalAudio,
@@ -69,7 +70,9 @@ async function handleVercelBlobUpload(request: Request) {
       body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        if (!isAdminAuthenticated()) {
+        const currentUser = await getCurrentUser();
+
+        if (!isAdminAuthenticated() && !currentUser) {
           throw new Error("Não autorizado.");
         }
 
@@ -104,7 +107,9 @@ async function handleVercelBlobUpload(request: Request) {
 }
 
 async function handleLocalUpload(request: Request) {
-  if (!isAdminAuthenticated()) {
+  const currentUser = await getCurrentUser();
+
+  if (!isAdminAuthenticated() && !currentUser) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 

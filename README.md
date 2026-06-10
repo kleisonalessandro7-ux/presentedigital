@@ -26,6 +26,9 @@ ADMIN_PASSWORD=sua-senha
 BLOB_READ_WRITE_TOKEN=seu-token-do-vercel-blob
 SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxxxxxxxxxxxxxxxx
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxx
+AUTH_PROVIDERS=google
 ```
 
 `ADMIN_PASSWORD` é obrigatória para entrar no admin.
@@ -34,6 +37,8 @@ SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxxxxxxxxxxxxxxxx
 
 `BLOB_READ_WRITE_TOKEN` ativa o Vercel Blob para fotos, vídeos e áudio. Sem esse token, os uploads também ficam locais em desenvolvimento.
 
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e `AUTH_PROVIDERS` ativam o login individual opcional por Supabase Auth. Se não configurar essas variáveis, o admin continua funcionando pela senha `ADMIN_PASSWORD`.
+
 ## Supabase
 
 Execute o SQL em `supabase/schema.sql` no SQL Editor do seu projeto Supabase.
@@ -41,6 +46,8 @@ Execute o SQL em `supabase/schema.sql` no SQL Editor do seu projeto Supabase.
 A tabela principal é `public.gifts`. Ela guarda os campos indexáveis em colunas e o presente completo em `data jsonb`.
 
 O app usa a service role key somente no servidor. Não exponha `SUPABASE_SERVICE_ROLE_KEY` no navegador.
+
+Para login com Google, ative o provedor em `Authentication` > `Providers` no Supabase e configure a URL de callback do site na Vercel. Cada conta logada vê e edita apenas os presentes criados por ela. A senha admin continua existindo como acesso mestre.
 
 ## Rodar localmente
 
@@ -99,7 +106,8 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 3. Preencha nomes, datas, linha do tempo, fotos, vídeos, mensagens, cupons, música, voz, tema e extras.
 4. Use `Pré-visualizar como destinatário` para ver a experiência antes de salvar.
 5. Clique em `Gerar presente` ou `Salvar presente`.
-6. Envie o link gerado em `/presente/[slug]`.
+6. Se quiser entregar em papel, abra `/presente/[slug]/imprimir?tipo=convite` para o QR Code ou `/presente/[slug]/imprimir?tipo=cupons` para os cupons.
+7. Envie o link gerado em `/presente/[slug]`.
 
 ## Armazenamento
 
@@ -198,9 +206,14 @@ Adicione em `Settings` > `Environment Variables`:
 ADMIN_PASSWORD=sua-senha-forte
 SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=sua-chave-service-role-ou-secret
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica-publishable
+AUTH_PROVIDERS=google
 ```
 
 Use a mesma configuração para `Production`, `Preview` e `Development`, a menos que você queira ambientes separados.
+
+As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` são públicas e servem só para o fluxo de login social. A chave sensível continua sendo apenas `SUPABASE_SERVICE_ROLE_KEY`.
 
 Depois do Vercel Blob ser criado, a Vercel também adicionará:
 
@@ -304,6 +317,7 @@ npm run dev
 - SDK do Vercel Blob: https://vercel.com/docs/vercel-blob/using-blob-sdk
 - Supabase API e Project URL: https://supabase.com/docs/guides/api
 - Chaves do Supabase: https://supabase.com/docs/guides/getting-started/api-keys
+- Login com Google no Supabase: https://supabase.com/docs/guides/auth/social-login/auth-google
 
 ## Observações
 

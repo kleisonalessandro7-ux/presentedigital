@@ -206,6 +206,292 @@ button:disabled {
   display: none;
 }
 
+.gift-experience-light .text-white,
+.gift-experience-light .text-slate-100,
+.gift-experience-light .text-slate-200,
+.gift-experience-light .text-slate-300,
+.gift-experience-light .text-pink-100,
+.gift-experience-light .text-pink-200,
+.gift-experience-light .text-white\/80,
+.gift-experience-light .text-white\/56 {
+  color: #24111d !important;
+}
+
+.gift-experience-light .bg-black\/24,
+.gift-experience-light .bg-black\/32,
+.gift-experience-light .bg-black\/36,
+.gift-experience-light .bg-black\/40,
+.gift-experience-light .bg-black\/42,
+.gift-experience-light .bg-black\/44,
+.gift-experience-light .bg-white\/10,
+.gift-experience-light .bg-white\/8 {
+  background-color: rgba(255, 255, 255, 0.76) !important;
+}
+
+.gift-experience-light .border-white\/10,
+.gift-experience-light .border-white\/12,
+.gift-experience-light .border-white\/14,
+.gift-experience-light .border-white\/15 {
+  border-color: rgba(76, 16, 47, 0.18) !important;
+}
+
+.gift-experience-light .film-grain,
+.gift-experience-light .heartbeat-line {
+  opacity: 0.12 !important;
+}
+
+.gift-print-shell {
+  min-height: 100vh;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(236, 72, 153, 0.24), transparent 24rem),
+    radial-gradient(circle at 85% 8%, rgba(139, 92, 246, 0.22), transparent 24rem),
+    #fff7fb;
+  color: #24111d;
+}
+
+.gift-print-toolbar {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 20;
+  display: flex;
+  max-width: 210mm;
+  margin: 0 auto 1rem;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.gift-print-action {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.gift-print-action.primary {
+  border: 1px solid #be185d;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  color: #ffffff;
+}
+
+.gift-print-action.secondary {
+  border: 1px solid rgba(126, 22, 72, 0.18);
+  background: rgba(255, 255, 255, 0.82);
+  color: #7e1648;
+}
+
+.gift-print-page {
+  position: relative;
+  width: min(100%, 210mm);
+  min-height: 297mm;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 18mm;
+  border-radius: 8mm;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.2), transparent 45mm),
+    radial-gradient(circle at 92% 14%, rgba(139, 92, 246, 0.18), transparent 46mm),
+    linear-gradient(145deg, #fff8fb 0%, #fff1f8 48%, #f5efff 100%);
+  box-shadow: 0 1.5rem 5rem rgba(126, 22, 72, 0.2);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.gift-print-ornament {
+  position: absolute;
+  width: 72mm;
+  height: 72mm;
+  border-radius: 999px;
+  border: 1px solid rgba(236, 72, 153, 0.18);
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.gift-print-ornament.left {
+  left: -28mm;
+  bottom: -22mm;
+}
+
+.gift-print-ornament.right {
+  right: -24mm;
+  top: -18mm;
+}
+
+.gift-print-invite-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 252mm;
+  grid-template-rows: 1fr auto;
+  gap: 12mm;
+  border: 1px solid rgba(236, 72, 153, 0.28);
+  border-radius: 8mm;
+  padding: 16mm;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.gift-print-eyebrow {
+  margin: 0 0 7mm;
+  color: #be185d;
+  font-size: 10pt;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gift-print-copy h1,
+.gift-print-coupon-header h1 {
+  margin: 0;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  line-height: 0.98;
+}
+
+.gift-print-copy h1 {
+  max-width: 150mm;
+  font-size: 46pt;
+}
+
+.gift-print-subtitle {
+  max-width: 138mm;
+  margin: 8mm 0 0;
+  color: #6b2149;
+  font-size: 16pt;
+  line-height: 1.45;
+}
+
+.gift-print-tags {
+  display: flex;
+  gap: 4mm;
+  flex-wrap: wrap;
+  margin-top: 10mm;
+}
+
+.gift-print-tags span {
+  border: 1px solid rgba(190, 24, 93, 0.18);
+  border-radius: 999px;
+  padding: 3mm 5mm;
+  background: #ffffff;
+  color: #7e1648;
+  font-size: 10pt;
+  font-weight: 900;
+}
+
+.gift-print-note {
+  margin: 13mm 0 0;
+  color: #7e1648;
+  font-size: 12pt;
+  line-height: 1.5;
+}
+
+.gift-print-qr-card {
+  display: grid;
+  grid-template-columns: 42mm 1fr;
+  align-items: center;
+  gap: 9mm;
+  border-radius: 7mm;
+  padding: 8mm;
+  background: #ffffff;
+  box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+}
+
+.gift-print-cover {
+  width: 42mm;
+  height: 42mm;
+  border-radius: 5mm;
+  object-fit: cover;
+}
+
+.gift-print-qr-frame {
+  display: flex;
+  justify-content: center;
+}
+
+.gift-print-qr-frame img {
+  width: 58mm;
+  height: 58mm;
+}
+
+.gift-print-qr-card p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #7e1648;
+  font-size: 8pt;
+  word-break: break-all;
+}
+
+.gift-print-coupon-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 9mm;
+  text-align: center;
+}
+
+.gift-print-coupon-header h1 {
+  font-size: 34pt;
+}
+
+.gift-print-coupon-header p:last-child {
+  margin: 4mm 0 0;
+  color: #7e1648;
+  font-size: 11pt;
+}
+
+.gift-print-coupon-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7mm;
+}
+
+.gift-print-coupon {
+  min-height: 45mm;
+  border: 1px dashed rgba(190, 24, 93, 0.55);
+  border-radius: 6mm;
+  padding: 7mm;
+  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.gift-print-coupon span {
+  color: #be185d;
+  font-size: 8pt;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.gift-print-coupon h2 {
+  margin: 3mm 0 2mm;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 18pt;
+  line-height: 1.05;
+}
+
+.gift-print-coupon p {
+  margin: 0;
+  color: #6b2149;
+  font-size: 10pt;
+  line-height: 1.35;
+}
+
+.gift-print-coupon-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  margin-top: 6mm;
+  border-top: 1px solid rgba(190, 24, 93, 0.16);
+  padding-top: 3mm;
+}
+
 @media (max-width: 640px) {
   .gift-experience .font-display {
     overflow-wrap: anywhere;
@@ -227,6 +513,67 @@ button:disabled {
 
   .gift-experience .mobile-safe-slide::-webkit-scrollbar {
     display: none;
+  }
+
+  .gift-print-shell {
+    padding: 0.75rem;
+  }
+
+  .gift-print-toolbar {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gift-print-action {
+    min-height: 3rem;
+    padding: 0 0.75rem;
+  }
+
+  .gift-print-page {
+    min-height: auto;
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
+
+  .gift-print-invite-grid {
+    min-height: auto;
+    gap: 1.5rem;
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .gift-print-copy h1 {
+    font-size: clamp(2.7rem, 13vw, 4.2rem);
+  }
+
+  .gift-print-subtitle {
+    font-size: 1rem;
+  }
+
+  .gift-print-qr-card {
+    grid-template-columns: 1fr;
+  }
+
+  .gift-print-cover {
+    display: none;
+  }
+
+  .gift-print-qr-frame img {
+    width: 72vw;
+    max-width: 15rem;
+    height: auto;
+  }
+
+  .gift-print-coupon-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .gift-print-coupon {
+    min-height: 10rem;
+    border-radius: 1rem;
+    padding: 1rem;
   }
 }
 
@@ -472,6 +819,26 @@ button:disabled {
     margin-top: 6mm;
     border-top: 1px solid rgba(190, 24, 93, 0.16);
     padding-top: 3mm;
+  }
+
+  .gift-print-toolbar {
+    display: none !important;
+  }
+
+  .gift-print-shell {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 0;
+    background: #ffffff !important;
+  }
+
+  .gift-print-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-after: always;
   }
 }
 

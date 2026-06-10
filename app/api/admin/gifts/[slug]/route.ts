@@ -34,7 +34,15 @@ function cleanExperienceStyle(value: unknown): ExperienceStyle {
 }
 
 function cleanTheme(value: unknown): GiftTheme {
-  return value === "floral-light" || value === "minimal" ? value : "romantic-dark";
+  return value === "floral-light" ||
+    value === "minimal" ||
+    value === "cinema-night" ||
+    value === "starry-sky" ||
+    value === "vintage-letter" ||
+    value === "luxury-gold" ||
+    value === "neon-heart"
+    ? value
+    : "romantic-dark";
 }
 
 function cleanTimelineEvents(value: unknown): GiftTimelineEvent[] {

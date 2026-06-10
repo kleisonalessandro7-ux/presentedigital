@@ -1,4 +1,12 @@
-export type GiftTheme = "romantic-dark" | "floral-light" | "minimal";
+export type GiftTheme =
+  | "romantic-dark"
+  | "floral-light"
+  | "minimal"
+  | "cinema-night"
+  | "starry-sky"
+  | "vintage-letter"
+  | "luxury-gold"
+  | "neon-heart";
 
 export type MediaType = "youtube" | "spotify" | "none";
 

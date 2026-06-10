@@ -45,6 +45,8 @@ Execute o SQL em `supabase/schema.sql` no SQL Editor do seu projeto Supabase.
 
 A tabela principal é `public.gifts`. Ela guarda os campos indexáveis em colunas e o presente completo em `data jsonb`.
 
+A tabela `public.gift_reactions` guarda as respostas enviadas pela pessoa no final do presente.
+
 O app usa a service role key somente no servidor. Não exponha `SUPABASE_SERVICE_ROLE_KEY` no navegador.
 
 Para login com Google, ative o provedor em `Authentication` > `Providers` no Supabase e configure a URL de callback do site na Vercel. Cada conta logada vê e edita apenas os presentes criados por ela. A senha admin continua existindo como acesso mestre.
@@ -69,7 +71,7 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 - Carta selada na abertura com toque/segurar para abrir.
 - Tela inicial para começar com som ou continuar sem som.
 - Contador animado desde a data especial.
-- Templates rápidos para namoro, aniversário, casamento, desculpas e saudade.
+- Modo presente perfeito com modelos para namoro, aniversário, aniversário de namoro, só porque te amo, casamento, pedido de casamento, reconciliação, desculpas e saudade.
 - Pacotes prontos para pedido de namoro, Dia dos Namorados, noivado e surpresa elegante.
 - Banco de frases com categorias para mensagem, motivos, promessas e mensagens secretas.
 - Rascunho automático no navegador para não perder o que foi preenchido.
@@ -77,7 +79,7 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 - Fotos com capa, legenda, posição da legenda, filtro, estilo polaroid, data, lugar e pergunta romântica com resposta revelada.
 - Upload de vídeos curtos com legenda.
 - Linha do tempo visual em fotos fullscreen com Ken Burns.
-- Constelação personalizada com mensagens secretas.
+- Constelação personalizada com mensagens secretas, estrelas piscando e estrelas cadentes.
 - Chuva de motivos pelos quais a pessoa é especial.
 - Mapa afetivo com lugares importantes.
 - Linha do tempo do casal com eventos marcantes.
@@ -88,7 +90,7 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 - Raspadinha para revelar uma frase especial.
 - Cápsula do tempo com mensagem futura.
 - Promessas em cards finais.
-- Áudio pessoal enviado por upload.
+- Áudio pessoal enviado por upload, com controle pequeno durante a apresentação.
 - Embed Spotify ou YouTube.
 - Palavra secreta opcional para proteger um presente específico.
 - Capa personalizada do link para WhatsApp/redes sociais.
@@ -97,7 +99,8 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 - Modos de experiência: clássico, scrapbook e cinema.
 - Pétalas, corações, granulação cinematográfica e batimento sutil no fundo.
 - Álbum final navegável com foto ampliada.
-- Final com QR Code, download do QR, copiar link, compartilhar, música, atalhos e botão para ver uma lembrança aleatória.
+- Final com QR Code, download do QR, copiar link, WhatsApp, reação da pessoa, compartilhar, música, atalhos e botão para ver uma lembrança aleatória.
+- Página protegida em `/admin/reacoes/[slug]` para ver as respostas recebidas.
 
 ## Como usar
 
@@ -106,7 +109,7 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 3. Preencha nomes, datas, linha do tempo, fotos, vídeos, mensagens, cupons, música, voz, tema e extras.
 4. Use `Pré-visualizar como destinatário` para ver a experiência antes de salvar.
 5. Clique em `Gerar presente` ou `Salvar presente`.
-6. Se quiser entregar em papel, abra `/presente/[slug]/imprimir?tipo=convite` para o QR Code ou `/presente/[slug]/imprimir?tipo=cupons` para os cupons.
+6. Se quiser entregar em papel, abra `/presente/[slug]/imprimir?tipo=convite` para o QR Code, `/presente/[slug]/imprimir?tipo=cupons` para os cupons ou `/presente/[slug]/imprimir?tipo=pacote` para imprimir tudo junto.
 7. Envie o link gerado em `/presente/[slug]`.
 
 ## Armazenamento
@@ -116,6 +119,7 @@ No Supabase:
 - Tabela: `public.gifts`
 - Slug: `slug`
 - JSON completo: `data`
+- Reações da pessoa: `public.gift_reactions`
 
 No Vercel Blob:
 
@@ -150,7 +154,7 @@ npm run build
 3. Clique em `New query`.
 4. Copie todo o conteúdo de `supabase/schema.sql`.
 5. Cole no editor e clique em `Run`.
-6. Confira se a tabela `public.gifts` foi criada.
+6. Confira se as tabelas `public.gifts` e `public.gift_reactions` foram criadas.
 
 Depois copie as credenciais:
 

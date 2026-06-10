@@ -46,6 +46,7 @@ import {
 import Link from "next/link";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { giftThemes } from "@/lib/themes";
+import { getMediaEmbedUrl } from "@/lib/media";
 import type {
   DraftGift,
   ExperienceStyle,
@@ -209,6 +210,64 @@ const templates: Record<
       finalSignature: "Feliz vida. Feliz você."
     }
   },
+  soPorque: {
+    label: "Só porque te amo",
+    description: "Leve, espontâneo e perfeito para surpreender sem data.",
+    patch: {
+      experienceStyle: "scrapbook",
+      theme: "neon-heart",
+      openingHint: "Não precisa ser data especial para lembrar que você é especial.",
+      message:
+        "Eu quis te entregar um carinho fora de hora, só para te lembrar que você aparece bonito nos meus pensamentos.",
+      reasons: [
+        "você melhora dias comuns",
+        "seu jeito fica comigo depois que você vai",
+        "amar você também mora nos pequenos detalhes"
+      ],
+      coupons: [
+        { title: "Vale surpresa fora de data", description: "Para receber carinho quando menos esperar." },
+        { title: "Vale passeio simples", description: "Um lugar qualquer, desde que seja com você." }
+      ],
+      finalSignature: "Só porque sim. Só porque você."
+    }
+  },
+  primeiroAno: {
+    label: "Aniversário de namoro",
+    description: "Linha do tempo, memória e promessa de próximos anos.",
+    patch: {
+      experienceStyle: "cinema",
+      theme: "starry-sky",
+      openingHint: "Um ano cabe em datas, mas também cabe em estrelas.",
+      message:
+        "Hoje eu olho para tudo que a gente viveu e sinto vontade de agradecer por cada detalhe que nos trouxe até aqui.",
+      timelineEvents: [
+        { title: "Nosso começo", description: "O primeiro capítulo de uma história que virou casa.", date: "" },
+        { title: "O que ficou", description: "As risadas, as conversas e a vontade de continuar.", date: "" }
+      ],
+      promises: [
+        "Prometo fazer dos próximos anos um lugar bonito para nós dois.",
+        "Prometo lembrar do nosso começo quando a vida correr demais."
+      ],
+      finalSignature: "Feliz nosso tempo. Que venham muitos outros."
+    }
+  },
+  reconciliacao: {
+    label: "Reconciliação",
+    description: "Sincero, delicado e focado em recomeço.",
+    patch: {
+      experienceStyle: "classic",
+      theme: "vintage-letter",
+      openingHint: "Algumas palavras precisam chegar com calma.",
+      message:
+        "Eu queria abrir um espaço de cuidado entre nós. Não para apagar o que aconteceu, mas para dizer que ainda existe carinho, escuta e vontade de fazer melhor.",
+      promises: [
+        "Prometo ouvir com mais presença.",
+        "Prometo cuidar melhor do que machuca.",
+        "Prometo reconstruir com atitudes, não só palavras."
+      ],
+      finalSignature: "Com respeito, carinho e vontade de recomeçar."
+    }
+  },
   casamento: {
     label: "Casamento",
     description: "Mais solene, elegante e eterno.",
@@ -325,6 +384,29 @@ const templates: Record<
       finalSignature: "Para todos os próximos capítulos."
     }
   },
+  pedidoCasamento: {
+    label: "Pedido de casamento",
+    description: "Elegante, emocionante e com clima de grande pergunta.",
+    patch: {
+      experienceStyle: "cinema",
+      theme: "luxury-gold",
+      openingHint: "Tem uma pergunta que eu quero guardar para sempre.",
+      message:
+        "Eu pensei em muitos jeitos de dizer isso, mas todos terminavam no mesmo lugar: eu quero construir a vida ao seu lado.",
+      reasons: [
+        "você é meu plano favorito",
+        "o futuro parece mais bonito com você",
+        "meu sim já mora em mim faz tempo"
+      ],
+      messageChapters: [
+        { title: "Antes da pergunta", body: "Eu queria te lembrar de tudo que me fez chegar até aqui." },
+        { title: "A pergunta", body: "Quer casar comigo?" }
+      ],
+      surpriseQuestion: "Qual palavra muda tudo hoje?",
+      surpriseAnswer: "sim",
+      finalSignature: "Com amor, coragem e um futuro inteiro."
+    }
+  },
   simples: {
     label: "Surpresa elegante",
     description: "Minimalista, rápida e bonita.",
@@ -435,6 +517,20 @@ function formatDate(date: string) {
     month: "long",
     year: "numeric"
   }).format(new Date(year, month - 1, day));
+}
+
+function formatDateTime(date: string) {
+  if (!date) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(date));
 }
 
 function makeAssetPath(kind: "photos" | "audio" | "videos", slug: string, file: File) {
@@ -837,6 +933,7 @@ export function GiftBuilder({
   const [uploadingVideos, setUploadingVideos] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const mediaPreviewUrl = useMemo(() => getMediaEmbedUrl(draft.mediaUrl), [draft.mediaUrl]);
 
   useEffect(() => {
     try {
@@ -1373,7 +1470,7 @@ export function GiftBuilder({
           <div>
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <p className="text-sm font-bold uppercase text-pink-200">
-                {editingSlug ? `Editando /presente/${editingSlug}` : "Templates rápidos"}
+                {editingSlug ? `Editando /presente/${editingSlug}` : "Modo presente perfeito"}
               </p>
               {editingSlug ? (
                 <button
@@ -1478,7 +1575,7 @@ export function GiftBuilder({
                   Presentes criados
                 </h2>
                 <div className="space-y-2">
-                  {gifts.slice(0, 5).map((gift) => (
+                  {gifts.slice(0, 8).map((gift) => (
                     <div
                       key={gift.slug}
                       className="rounded-lg border border-white/10 bg-white/[0.04] p-3"
@@ -1486,7 +1583,9 @@ export function GiftBuilder({
                       <p className="truncate text-sm font-semibold text-white">
                         {gift.recipientName}
                       </p>
-                      <p className="text-xs text-slate-400">{gift.photoCount} fotos</p>
+                      <p className="text-xs text-slate-400">
+                        {gift.photoCount} fotos · {formatDateTime(gift.createdAt)}
+                      </p>
                       <div className="mt-3 flex gap-2">
                         <Link
                           href={`/presente/${gift.slug}`}
@@ -1521,7 +1620,14 @@ export function GiftBuilder({
                           Duplicar
                         </button>
                       </div>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/admin/reacoes/${gift.slug}`}
+                        className="mt-2 inline-flex h-8 w-full items-center justify-center gap-1 rounded-lg border border-pink-200/20 bg-pink-500/10 text-xs font-bold text-pink-100 hover:bg-pink-500/15"
+                      >
+                        <MessageCircleHeart size={13} aria-hidden="true" />
+                        Ver reações
+                      </Link>
+                      <div className="mt-2 grid grid-cols-3 gap-2">
                         <Link
                           href={`/presente/${gift.slug}/imprimir?tipo=convite`}
                           target="_blank"
@@ -1537,6 +1643,14 @@ export function GiftBuilder({
                         >
                           <Printer size={13} aria-hidden="true" />
                           Cupons
+                        </Link>
+                        <Link
+                          href={`/presente/${gift.slug}/imprimir?tipo=pacote`}
+                          target="_blank"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10"
+                        >
+                          <ClipboardCheck size={13} aria-hidden="true" />
+                          Pacote
                         </Link>
                       </div>
                     </div>
@@ -2202,6 +2316,20 @@ export function GiftBuilder({
                     No celular, Spotify e YouTube podem pedir um toque no player.
                     Para tocar do começo com mais estabilidade, envie um MP3 no campo ao lado.
                   </p>
+                  {mediaPreviewUrl ? (
+                    <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950/70 p-2">
+                      <iframe
+                        title="Teste da trilha"
+                        src={mediaPreviewUrl}
+                        className="h-32 w-full rounded-lg border-0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      />
+                    </div>
+                  ) : draft.mediaUrl ? (
+                    <p className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-100">
+                      Não consegui reconhecer esse link. Use um link aberto do Spotify ou YouTube.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
@@ -2517,6 +2645,47 @@ export function GiftBuilder({
                       </dd>
                     </div>
                   </dl>
+
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h4 className="text-sm font-bold uppercase text-pink-200">
+                        Preview mobile
+                      </h4>
+                      <span className="text-xs font-semibold text-slate-400">
+                        9:16
+                      </span>
+                    </div>
+                    <div className="mx-auto max-w-[220px] rounded-[28px] border border-white/15 bg-black p-2 shadow-violet">
+                      <div className="relative aspect-[9/16] overflow-hidden rounded-[22px] bg-slate-950">
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background: `radial-gradient(circle at 30% 20%, ${draft.primaryColor}66, transparent 8rem), radial-gradient(circle at 70% 12%, rgba(139,92,246,0.44), transparent 9rem), linear-gradient(145deg,#07050f,#16071b)`
+                          }}
+                        />
+                        {draft.photos[0] ? (
+                          <img
+                            src={draft.photos[0].url}
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-cover opacity-32"
+                          />
+                        ) : null}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                        <div className="absolute inset-x-0 top-3 mx-auto h-1 w-14 rounded-full bg-white/25" />
+                        <div className="absolute inset-x-0 bottom-0 p-4">
+                          <p className="text-xs font-bold uppercase text-pink-100">
+                            Para {draft.recipientName || "alguém especial"}
+                          </p>
+                          <p className="mt-2 line-clamp-3 font-display text-2xl leading-tight text-white">
+                            Com amor de {draft.creatorName || "você"}
+                          </p>
+                          <p className="mt-3 line-clamp-4 text-xs leading-5 text-slate-200">
+                            {draft.message || "Sua mensagem aparecerá aqui com animação."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <button
                     type="button"

@@ -24,7 +24,16 @@ import { ensureSlug } from "@/lib/slug";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const themes: GiftTheme[] = ["romantic-dark", "floral-light", "minimal"];
+const themes: GiftTheme[] = [
+  "romantic-dark",
+  "floral-light",
+  "minimal",
+  "cinema-night",
+  "starry-sky",
+  "vintage-letter",
+  "luxury-gold",
+  "neon-heart"
+];
 const experienceStyles: ExperienceStyle[] = ["classic", "scrapbook", "cinema"];
 const captionPositions: CaptionPosition[] = ["bottom", "center", "top", "hidden"];
 const photoFilters: PhotoFilter[] = ["none", "film", "bw", "soft"];

@@ -71,7 +71,12 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
     notFound();
   }
 
-  const mode = searchParams?.tipo === "cupons" ? "coupons" : "invite";
+  const mode =
+    searchParams?.tipo === "cupons"
+      ? "coupons"
+      : searchParams?.tipo === "pacote"
+        ? "package"
+        : "invite";
   const baseUrl = getBaseUrl();
   const giftUrl = `${baseUrl}/presente/${gift.slug}`;
   const qrUrl = await QRCode.toDataURL(giftUrl, {
@@ -91,7 +96,7 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
     <main className="gift-print-shell">
       <PrintActions giftUrl={`/presente/${gift.slug}`} />
 
-      {mode === "invite" ? (
+      {mode === "invite" || mode === "package" ? (
         <section className="gift-print-page gift-print-invite">
           <div className="gift-print-ornament left" />
           <div className="gift-print-ornament right" />
@@ -120,7 +125,9 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
             </div>
           </div>
         </section>
-      ) : (
+      ) : null}
+
+      {mode === "coupons" || mode === "package" ? (
         <section className="gift-print-page gift-print-coupons">
           <div className="gift-print-coupon-header">
             <p className="gift-print-eyebrow">Vales para usar com carinho</p>
@@ -146,7 +153,7 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
             ))}
           </div>
         </section>
-      )}
+      ) : null}
     </main>
   );
 }

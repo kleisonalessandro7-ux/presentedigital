@@ -12,6 +12,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Copy,
   Download,
   ExternalLink,
@@ -19,6 +20,7 @@ import {
   Images,
   LockKeyhole,
   MapPin,
+  MessageCircleHeart,
   Pause,
   Play,
   Printer,
@@ -150,6 +152,76 @@ const themeVisuals: Record<
     control: "border-white/12 bg-white/8 hover:bg-white/14",
     controlText: "text-white",
     overlay: "from-black via-black/45 to-transparent"
+  },
+  "cinema-night": {
+    gradients: [
+      "radial-gradient(circle at 20% 18%, rgba(225,29,72,0.34), transparent 26rem), radial-gradient(circle at 82% 15%, rgba(245,158,11,0.24), transparent 24rem), linear-gradient(135deg, #05020a 0%, #16070d 48%, #03020a 100%)",
+      "radial-gradient(circle at 72% 22%, rgba(244,63,94,0.28), transparent 28rem), radial-gradient(circle at 22% 82%, rgba(251,191,36,0.18), transparent 30rem), linear-gradient(145deg, #03020a 0%, #190b10 56%, #05020a 100%)",
+      "radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), transparent 20rem), radial-gradient(circle at 85% 78%, rgba(225,29,72,0.22), transparent 28rem), linear-gradient(135deg, #06030c 0%, #1c1015 55%, #05020a 100%)"
+    ],
+    text: "text-white",
+    muted: "text-rose-100/82",
+    accent: "text-amber-200",
+    progress: "bg-gradient-to-r from-rose-400 to-amber-300",
+    control: "border-white/14 bg-white/10 hover:bg-white/16",
+    controlText: "text-white",
+    overlay: "from-black via-black/48 to-transparent"
+  },
+  "starry-sky": {
+    gradients: [
+      "radial-gradient(circle at 20% 18%, rgba(56,189,248,0.26), transparent 26rem), radial-gradient(circle at 78% 20%, rgba(249,168,212,0.2), transparent 24rem), linear-gradient(135deg, #020617 0%, #0f172a 50%, #030712 100%)",
+      "radial-gradient(circle at 68% 18%, rgba(125,211,252,0.2), transparent 28rem), radial-gradient(circle at 22% 80%, rgba(236,72,153,0.18), transparent 30rem), linear-gradient(145deg, #020617 0%, #111827 55%, #020617 100%)",
+      "radial-gradient(circle at 50% 20%, rgba(255,255,255,0.12), transparent 18rem), radial-gradient(circle at 84% 82%, rgba(14,165,233,0.2), transparent 28rem), linear-gradient(135deg, #030712 0%, #0b1120 60%, #020617 100%)"
+    ],
+    text: "text-white",
+    muted: "text-sky-100/82",
+    accent: "text-sky-200",
+    progress: "bg-gradient-to-r from-sky-300 to-pink-300",
+    control: "border-white/14 bg-white/10 hover:bg-white/16",
+    controlText: "text-white",
+    overlay: "from-slate-950 via-slate-950/46 to-transparent"
+  },
+  "vintage-letter": {
+    gradients: [
+      "radial-gradient(circle at 18% 18%, rgba(190,18,60,0.2), transparent 24rem), radial-gradient(circle at 80% 18%, rgba(146,64,14,0.18), transparent 26rem), linear-gradient(135deg, #fff7ed 0%, #ffedd5 48%, #ffe4e6 100%)",
+      "radial-gradient(circle at 75% 20%, rgba(244,63,94,0.18), transparent 26rem), radial-gradient(circle at 18% 78%, rgba(180,83,9,0.14), transparent 30rem), linear-gradient(135deg, #fff7ed 0%, #fed7aa 52%, #fff1f2 100%)",
+      "radial-gradient(circle at 50% 18%, rgba(190,18,60,0.14), transparent 24rem), radial-gradient(circle at 82% 82%, rgba(120,53,15,0.14), transparent 28rem), linear-gradient(145deg, #fffbeb 0%, #fed7aa 54%, #fff7ed 100%)"
+    ],
+    text: "text-stone-950",
+    muted: "text-stone-700",
+    accent: "text-rose-800",
+    progress: "bg-gradient-to-r from-rose-700 to-amber-700",
+    control: "border-stone-950/12 bg-white/64 hover:bg-white/82",
+    controlText: "text-stone-950",
+    overlay: "from-stone-950/80 via-stone-950/28 to-transparent"
+  },
+  "luxury-gold": {
+    gradients: [
+      "radial-gradient(circle at 18% 18%, rgba(245,158,11,0.26), transparent 24rem), radial-gradient(circle at 80% 18%, rgba(255,255,255,0.12), transparent 24rem), linear-gradient(135deg, #030712 0%, #11100a 50%, #020617 100%)",
+      "radial-gradient(circle at 75% 20%, rgba(251,191,36,0.22), transparent 26rem), radial-gradient(circle at 18% 78%, rgba(236,72,153,0.12), transparent 30rem), linear-gradient(145deg, #020617 0%, #17130a 55%, #030712 100%)",
+      "radial-gradient(circle at 50% 18%, rgba(255,255,255,0.1), transparent 22rem), radial-gradient(circle at 82% 82%, rgba(245,158,11,0.18), transparent 28rem), linear-gradient(135deg, #030712 0%, #0f0b05 55%, #020617 100%)"
+    ],
+    text: "text-white",
+    muted: "text-amber-100/80",
+    accent: "text-amber-200",
+    progress: "bg-gradient-to-r from-amber-200 to-yellow-500",
+    control: "border-amber-200/18 bg-white/8 hover:bg-white/14",
+    controlText: "text-white",
+    overlay: "from-black via-black/48 to-transparent"
+  },
+  "neon-heart": {
+    gradients: [
+      "radial-gradient(circle at 20% 18%, rgba(236,72,153,0.36), transparent 24rem), radial-gradient(circle at 80% 18%, rgba(34,211,238,0.28), transparent 26rem), linear-gradient(135deg, #09090b 0%, #16051c 48%, #020617 100%)",
+      "radial-gradient(circle at 72% 22%, rgba(34,211,238,0.28), transparent 28rem), radial-gradient(circle at 22% 82%, rgba(236,72,153,0.28), transparent 30rem), linear-gradient(145deg, #020617 0%, #15051a 56%, #09090b 100%)",
+      "radial-gradient(circle at 48% 20%, rgba(255,255,255,0.12), transparent 20rem), radial-gradient(circle at 86% 80%, rgba(236,72,153,0.28), transparent 28rem), linear-gradient(135deg, #09090b 0%, #101026 55%, #020617 100%)"
+    ],
+    text: "text-white",
+    muted: "text-cyan-100/82",
+    accent: "text-cyan-200",
+    progress: "bg-gradient-to-r from-pink-400 to-cyan-300",
+    control: "border-cyan-200/18 bg-white/9 hover:bg-white/16",
+    controlText: "text-white",
+    overlay: "from-black via-black/46 to-transparent"
   }
 };
 
@@ -1074,7 +1146,11 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
 
   return (
     <main
-      className={`gift-experience ${gift.theme === "floral-light" ? "gift-experience-light" : ""} relative h-[100svh] overflow-hidden ${visual.text}`}
+      className={`gift-experience ${
+        gift.theme === "floral-light" || gift.theme === "vintage-letter"
+          ? "gift-experience-light"
+          : ""
+      } relative h-[100svh] overflow-hidden ${visual.text}`}
       onPointerMove={(event) =>
         setMouse({
           x: Math.round((event.clientX / window.innerWidth) * 100),
@@ -1352,6 +1428,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
                 }}
                 onPrintInvite={() => printSheet("invite")}
                 onPrintCoupons={() => printSheet("coupons")}
+                onPrintPackage={() => window.open(`/presente/${gift.slug}/imprimir?tipo=pacote`, "_blank", "noopener,noreferrer")}
                 onGoTo={(type) => {
                   const target = slides.findIndex((slide) => slide.type === type);
                   if (target >= 0) {
@@ -1727,10 +1804,20 @@ function ConstellationSlide({
   const initials = `${gift.creatorName[0] || ""}${gift.recipientName[0] || ""}`.toUpperCase();
   const stars = useMemo(
     () =>
-      Array.from({ length: 18 }, (_, index) => ({
+      Array.from({ length: 24 }, (_, index) => ({
         x: 8 + ((index * 23) % 84),
         y: 12 + ((index * 37) % 72),
-        size: 5 + (index % 4) * 2
+        size: 4 + (index % 4) * 2,
+        delay: index * 0.16
+      })),
+    []
+  );
+  const shootingStars = useMemo(
+    () =>
+      Array.from({ length: 5 }, (_, index) => ({
+        top: 12 + index * 15,
+        delay: index * 1.6,
+        duration: 4.5 + index * 0.35
       })),
     []
   );
@@ -1738,6 +1825,28 @@ function ConstellationSlide({
   return (
     <div className="mx-auto grid w-full max-w-6xl items-center gap-5 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="relative mx-auto aspect-square w-full max-w-[min(78vw,320px)] overflow-hidden rounded-2xl border border-white/12 bg-black/20 shadow-violet backdrop-blur-xl sm:aspect-[1.45] sm:max-w-none sm:min-h-[360px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_22%,rgba(255,255,255,0.18),transparent_12rem),radial-gradient(circle_at_70%_72%,rgba(236,72,153,0.16),transparent_14rem)]" />
+        {shootingStars.map((star, index) => (
+          <motion.span
+            key={`shooting-${index}`}
+            className="pointer-events-none absolute h-px w-24 rounded-full bg-gradient-to-r from-transparent via-white to-transparent opacity-0"
+            style={{
+              top: `${star.top}%`,
+              left: "-30%",
+              rotate: "-18deg"
+            }}
+            animate={{
+              x: ["0vw", "130vw"],
+              opacity: [0, 0.9, 0]
+            }}
+            transition={{
+              duration: star.duration,
+              repeat: Infinity,
+              delay: star.delay,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
           <polyline
             points={stars.slice(0, 9).map((star) => `${star.x},${star.y}`).join(" ")}
@@ -1753,7 +1862,7 @@ function ConstellationSlide({
           />
         </svg>
         {stars.map((star, index) => (
-          <button
+          <motion.button
             key={index}
             type="button"
             onClick={() => setSelected(index % hiddenMessages.length)}
@@ -1763,6 +1872,20 @@ function ConstellationSlide({
               top: `${star.y}%`,
               width: star.size,
               height: star.size
+            }}
+            animate={{
+              scale: [1, 1.55, 1],
+              opacity: [0.58, 1, 0.68],
+              boxShadow: [
+                "0 0 10px rgba(255,255,255,0.38)",
+                "0 0 22px rgba(236,72,153,0.78)",
+                "0 0 10px rgba(255,255,255,0.42)"
+              ]
+            }}
+            transition={{
+              duration: 2.4 + (index % 5) * 0.28,
+              repeat: Infinity,
+              delay: star.delay
             }}
             aria-label="Revelar mensagem secreta"
             title="Revelar mensagem secreta"
@@ -2074,11 +2197,23 @@ function MessageSlide({
       <p className={`mb-6 text-center text-sm font-bold uppercase ${visual.accent}`}>
         Uma mensagem só para você
       </p>
-      <TypingText
-        text={gift.message}
-        active={active}
-        className="whitespace-pre-wrap break-words text-center font-display text-3xl leading-snug sm:text-5xl"
-      />
+      <motion.div
+        className="relative overflow-hidden rounded-2xl border border-white/14 bg-white/[0.92] p-6 text-slate-950 shadow-violet sm:p-10"
+        initial={{ rotateX: 8, y: 26, opacity: 0 }}
+        animate={{ rotateX: 0, y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(120,53,15,0.06)_1px,transparent_1px)] bg-[length:100%_2.1rem]" />
+        <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full border border-rose-200/60" />
+        <TypingText
+          text={gift.message}
+          active={active}
+          className="relative whitespace-pre-wrap break-words text-center font-display text-3xl leading-snug text-slate-950 sm:text-5xl"
+        />
+        <p className="relative mt-8 text-right font-display text-2xl text-rose-700">
+          {gift.finalSignature || gift.creatorName}
+        </p>
+      </motion.div>
     </div>
   );
 }
@@ -2209,6 +2344,7 @@ function EndingSlide({
   onOpenMusic,
   onPrintInvite,
   onPrintCoupons,
+  onPrintPackage,
   onGoTo,
   visual
 }: {
@@ -2221,6 +2357,7 @@ function EndingSlide({
   onOpenMusic: () => void;
   onPrintInvite: () => void;
   onPrintCoupons: () => void;
+  onPrintPackage: () => void;
   onGoTo: (type: Slide["type"]) => void;
   visual: ThemeVisual;
 }) {
@@ -2228,6 +2365,10 @@ function EndingSlide({
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [qrUrl, setQrUrl] = useState("");
+  const [reaction, setReaction] = useState("amei");
+  const [senderName, setSenderName] = useState("");
+  const [reactionMessage, setReactionMessage] = useState("");
+  const [reactionStatus, setReactionStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     setShareUrl(window.location.href);
@@ -2275,6 +2416,29 @@ function EndingSlide({
 
     const message = `Abre esse presente que fiz para você: ${shareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  }
+
+  async function sendReaction() {
+    setReactionStatus("sending");
+
+    const response = await fetch(`/api/presente/${gift.slug}/reactions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        reaction,
+        senderName,
+        message: reactionMessage
+      })
+    });
+
+    if (!response.ok) {
+      setReactionStatus("error");
+      return;
+    }
+
+    setReactionStatus("sent");
   }
 
   const handleQrReady = useCallback((dataUrl: string) => {
@@ -2378,6 +2542,14 @@ function EndingSlide({
             <Ticket size={17} aria-hidden="true" />
             Cupons
           </button>
+          <button
+            type="button"
+            onClick={onPrintPackage}
+            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+          >
+            <ClipboardCheck size={17} aria-hidden="true" />
+            Pacote
+          </button>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
           {[
@@ -2414,6 +2586,66 @@ function EndingSlide({
             </div>
           </motion.div>
         ) : null}
+        <div className="mt-6 max-w-2xl rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-xl">
+          <div className="mb-4 flex items-center gap-2">
+            <MessageCircleHeart size={20} className="text-pink-200" aria-hidden="true" />
+            <p className="text-sm font-bold uppercase text-pink-100">Responder ao presente</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              ["amei", "Amei"],
+              ["chorei", "Chorei"],
+              ["replay", "Replay"],
+              ["sorriso", "Sorri"]
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setReaction(value)}
+                className={`h-10 rounded-lg border text-sm font-bold transition ${
+                  reaction === value
+                    ? "border-pink-200 bg-white text-slate-950"
+                    : "border-white/12 bg-white/10 text-white hover:bg-white/16"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)]">
+            <input
+              value={senderName}
+              onChange={(event) => setSenderName(event.target.value)}
+              maxLength={80}
+              className="h-11 rounded-lg border border-white/12 bg-black/24 px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-pink-200"
+              placeholder="Seu nome"
+            />
+            <input
+              value={reactionMessage}
+              onChange={(event) => setReactionMessage(event.target.value)}
+              maxLength={600}
+              className="h-11 rounded-lg border border-white/12 bg-black/24 px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-pink-200"
+              placeholder="Mensagem rápida para quem criou"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={sendReaction}
+            disabled={reactionStatus === "sending" || reactionStatus === "sent"}
+            className="mt-3 inline-flex h-11 items-center justify-center rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-glow transition hover:bg-pink-100 disabled:opacity-60"
+          >
+            {reactionStatus === "sent"
+              ? "Resposta enviada"
+              : reactionStatus === "sending"
+                ? "Enviando..."
+                : "Enviar reação"}
+          </button>
+          {reactionStatus === "error" ? (
+            <p className="mt-2 text-sm font-semibold text-pink-100">
+              Não consegui enviar agora. Tente novamente em instantes.
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="space-y-4">

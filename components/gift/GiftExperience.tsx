@@ -20,6 +20,8 @@ import {
   MapPin,
   Pause,
   Play,
+  Printer,
+  QrCode,
   RotateCcw,
   Share2,
   Sparkles,
@@ -275,10 +277,20 @@ function TypingText({
 
 function EnvelopeGate({
   gift,
-  onOpen
+  onOpen,
+  onPrintInvite,
+  onPrintCoupons,
+  canPrint,
+  hasCoupons,
+  qrUrl
 }: {
   gift: GiftData;
   onOpen: () => void;
+  onPrintInvite: () => void;
+  onPrintCoupons: () => void;
+  canPrint: boolean;
+  hasCoupons: boolean;
+  qrUrl: string;
 }) {
   const [holding, setHolding] = useState(false);
   const timerRef = useRef<number | null>(null);
@@ -299,7 +311,7 @@ function EnvelopeGate({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[80] flex items-center justify-center overflow-hidden bg-[#07050f] px-6 text-center text-white"
+      className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-[#07050f] px-4 py-5 text-center text-white sm:items-center sm:px-6 sm:py-6"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.02 }}
       transition={{ duration: 0.9 }}
@@ -323,16 +335,16 @@ function EnvelopeGate({
           onPointerCancel={stopHold}
           onPointerLeave={stopHold}
           onClick={onOpen}
-          className="group mx-auto block w-full max-w-sm rounded-[10px] border border-pink-200/30 bg-pink-100/8 p-8 shadow-glow backdrop-blur-xl"
+          className="group mx-auto block w-full max-w-sm rounded-[10px] border border-pink-200/30 bg-pink-100/8 p-5 shadow-glow backdrop-blur-xl sm:p-8"
         >
-          <div className="relative mx-auto aspect-[1.45] max-w-[270px] overflow-hidden rounded-lg border border-pink-100/30 bg-gradient-to-br from-pink-200 via-pink-100 to-violet-200 shadow-2xl">
+          <div className="relative mx-auto aspect-[1.45] max-w-[220px] overflow-hidden rounded-lg border border-pink-100/30 bg-gradient-to-br from-pink-200 via-pink-100 to-violet-200 shadow-2xl sm:max-w-[270px]">
             <div className="absolute inset-x-0 top-0 h-1/2 origin-top bg-pink-200/90 [clip-path:polygon(0_0,100%_0,50%_100%)] transition duration-700 group-hover:rotate-x-12" />
             <div className="absolute inset-0 [clip-path:polygon(0_0,50%_54%,100%_0,100%_100%,0_100%)] bg-pink-100/95" />
             <div className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-glow">
               <Heart size={24} fill="currentColor" aria-hidden="true" />
             </div>
           </div>
-          <span className="mt-7 block font-display text-4xl leading-tight">
+          <span className="mt-5 block font-display text-3xl leading-tight sm:mt-7 sm:text-4xl">
             Carta para {gift.recipientName}
           </span>
           <span className="mx-auto mt-4 block max-w-xs text-sm leading-6 text-pink-100/80">
@@ -346,6 +358,39 @@ function EnvelopeGate({
             />
           </span>
         </button>
+        <div className="mx-auto mt-4 grid max-w-sm gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={onPrintInvite}
+            disabled={!canPrint}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16 disabled:opacity-45"
+          >
+            <QrCode size={17} aria-hidden="true" />
+            Imprimir convite
+          </button>
+          <button
+            type="button"
+            onClick={onPrintCoupons}
+            disabled={!canPrint || !hasCoupons}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16 disabled:opacity-45"
+          >
+            <Printer size={17} aria-hidden="true" />
+            Imprimir cupons
+          </button>
+        </div>
+        {qrUrl ? (
+          <div className="mx-auto mt-4 flex max-w-sm items-center gap-3 rounded-2xl border border-white/14 bg-white/10 p-3 text-left backdrop-blur-xl">
+            <div className="rounded-xl bg-white p-2">
+              <img src={qrUrl} alt="QR Code do presente" className="h-20 w-20" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">QR do presente</p>
+              <p className="mt-1 text-xs leading-5 text-pink-100/80">
+                Use este codigo para imprimir e entregar o presente em papel.
+              </p>
+            </div>
+          </div>
+        ) : null}
       </motion.div>
     </motion.div>
   );
@@ -515,6 +560,143 @@ function GiftQrCode({ onReady }: { onReady?: (dataUrl: string) => void }) {
   );
 }
 
+function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; initiallyOpen: boolean }) {
+  const [open, setOpen] = useState(false);
+  const isSpotify = mediaEmbedUrl.includes("spotify.com");
+
+  useEffect(() => {
+    setOpen(initiallyOpen && window.innerWidth >= 768);
+  }, [initiallyOpen]);
+
+  return (
+    <div className="fixed bottom-[10.75rem] right-4 z-40 w-[min(22rem,calc(100vw-2rem))] text-white sm:bottom-24">
+      {open ? (
+        <div className="overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase text-pink-100">Trilha sonora</p>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
+            >
+              Minimizar
+            </button>
+          </div>
+          <iframe
+            title="Trilha sonora do presente"
+            src={mediaEmbedUrl}
+            className={`w-full rounded-xl border-0 ${isSpotify ? "h-24" : "h-44"}`}
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="ml-auto flex h-12 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl"
+        >
+          <Volume2 size={17} aria-hidden="true" />
+          Tocar trilha
+        </button>
+      )}
+    </div>
+  );
+}
+
+type PrintMode = "invite" | "coupons";
+
+function PrintableGiftSheets({
+  gift,
+  coupons,
+  qrUrl,
+  shareUrl
+}: {
+  gift: GiftData;
+  coupons: GiftCoupon[];
+  qrUrl: string;
+  shareUrl: string;
+}) {
+  const cover =
+    gift.photos.find((photo) => photo.pathname === gift.coverPhotoPathname) ||
+    gift.photos[0];
+  const printedCoupons = coupons.length
+    ? coupons.slice(0, 8)
+    : [
+        {
+          title: "Vale abraco demorado",
+          description: "Para usar em qualquer dia que pedir mais carinho."
+        },
+        {
+          title: "Vale encontro surpresa",
+          description: "Um momento escolhido com calma, so para nos dois."
+        },
+        {
+          title: "Vale filme juntinhos",
+          description: "Com direito a escolher o filme e ficar perto."
+        }
+      ];
+
+  return (
+    <div className="printable-gift-pages" aria-hidden="true">
+      <section className="printable-page printable-invite">
+        <div className="print-ornament print-ornament-left" />
+        <div className="print-ornament print-ornament-right" />
+        <div className="print-invite-grid">
+          <div className="print-invite-copy">
+            <p className="print-eyebrow">Um presente digital espera por voce</p>
+            <h1>Para {gift.recipientName}</h1>
+            <p className="print-subtitle">
+              Com amor de {gift.creatorName}, em uma lembranca feita para abrir devagar.
+            </p>
+            <div className="print-date-row">
+              <span>Desde {formatDate(gift.specialDate)}</span>
+              <span>{gift.photos.length} memorias</span>
+            </div>
+            <p className="print-note">
+              Aponte a camera do celular para o QR Code e abra a surpresa.
+            </p>
+          </div>
+          <div className="print-qr-card">
+            {cover ? (
+              <img className="print-cover" src={cover.url} alt="" />
+            ) : null}
+            <div className="print-qr-frame">
+              {qrUrl ? <img src={qrUrl} alt="QR Code do presente" /> : null}
+            </div>
+            <p>{shareUrl}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="printable-page printable-coupons">
+        <div className="print-coupon-header">
+          <p className="print-eyebrow">Vales para usar com carinho</p>
+          <h2>Cupons de amor</h2>
+          <p>
+            Para {gift.recipientName}, de {gift.creatorName}
+          </p>
+        </div>
+        <div className="print-coupon-grid">
+          {printedCoupons.map((coupon, index) => (
+            <article className="print-coupon" key={`${coupon.title}-${index}`}>
+              <div>
+                <span>Vale {String(index + 1).padStart(2, "0")}</span>
+                <h3>{coupon.title}</h3>
+                <p>{coupon.description}</p>
+              </div>
+              <div className="print-coupon-foot">
+                <span>Para destacar e usar quando quiser</span>
+                <span>Presente digital</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function GiftExperience({ gift }: GiftExperienceProps) {
   const visual = themeVisuals[gift.theme];
   const reasons = useMemo(() => cleanList(gift.reasons, defaultReasons), [gift.reasons]);
@@ -583,6 +765,8 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }, [chapters.length, coupons.length, gift.photos, gift.videos, places.length, timelineEvents.length]);
   const [soundReady, setSoundReady] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const [surpriseUnlocked, setSurpriseUnlocked] = useState(
     !gift.surpriseQuestion || !gift.surpriseAnswer
   );
@@ -592,6 +776,9 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const [holdUntil, setHoldUntil] = useState(0);
   const [holdTick, setHoldTick] = useState(0);
+  const [shareUrl, setShareUrl] = useState("");
+  const [printQrUrl, setPrintQrUrl] = useState("");
+  const [printMode, setPrintMode] = useState<PrintMode | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentSlide = slides[current];
   const primary = gift.primaryColor || "#ec4899";
@@ -655,12 +842,42 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }, []);
 
   function replay() {
+    audioRef.current?.pause();
     setAutoPlay(true);
     setCurrent(0);
     setSealed(true);
     setSoundReady(false);
     setSoundEnabled(false);
+    setAudioPlaying(false);
+    setAudioBlocked(false);
     setSurpriseUnlocked(!gift.surpriseQuestion || !gift.surpriseAnswer);
+  }
+
+  function startExperience(withSound: boolean) {
+    setSoundEnabled(withSound);
+    setSoundReady(true);
+
+    if (withSound && gift.audio && audioRef.current) {
+      audioRef.current.volume = 0.86;
+      void audioRef.current
+        .play()
+        .then(() => {
+          setAudioPlaying(true);
+          setAudioBlocked(false);
+        })
+        .catch(() => {
+          setAudioBlocked(true);
+        });
+    }
+  }
+
+  function printSheet(mode: PrintMode) {
+    if (!printQrUrl) {
+      return;
+    }
+
+    setPrintMode(mode);
+    window.setTimeout(() => window.print(), 90);
   }
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
@@ -693,6 +910,46 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }, [next, previous, sealed]);
 
   useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
+
+  useEffect(() => {
+    if (!shareUrl) {
+      return;
+    }
+
+    QRCode.toDataURL(shareUrl, {
+      margin: 1,
+      width: 420,
+      color: {
+        dark: "#111827",
+        light: "#ffffff"
+      }
+    }).then(setPrintQrUrl);
+  }, [shareUrl]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (!printMode) {
+      root.removeAttribute("data-print-mode");
+      return;
+    }
+
+    root.setAttribute("data-print-mode", printMode);
+
+    const clearPrintMode = () => {
+      root.removeAttribute("data-print-mode");
+      setPrintMode(null);
+    };
+
+    window.addEventListener("afterprint", clearPrintMode);
+    return () => {
+      window.removeEventListener("afterprint", clearPrintMode);
+    };
+  }, [printMode]);
+
+  useEffect(() => {
     if (holdUntil <= Date.now()) {
       return;
     }
@@ -704,8 +961,10 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
 
   useEffect(() => {
     if (!sealed && soundEnabled && gift.audio && audioRef.current) {
-      audioRef.current.volume = 0;
+      audioRef.current.volume = audioRef.current.paused ? 0 : audioRef.current.volume;
       void audioRef.current.play().then(() => {
+        setAudioPlaying(true);
+        setAudioBlocked(false);
         const fade = window.setInterval(() => {
           if (!audioRef.current) {
             window.clearInterval(fade);
@@ -718,7 +977,9 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
             window.clearInterval(fade);
           }
         }, 140);
-      }).catch(() => undefined);
+      }).catch(() => {
+        setAudioBlocked(true);
+      });
     }
   }, [gift.audio, sealed, soundEnabled]);
 
@@ -736,7 +997,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
 
   return (
     <main
-      className={`relative h-[100svh] overflow-hidden ${visual.text}`}
+      className={`gift-experience relative h-[100svh] overflow-hidden ${visual.text}`}
       onPointerMove={(event) =>
         setMouse({
           x: Math.round((event.clientX / window.innerWidth) * 100),
@@ -744,13 +1005,54 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
         })
       }
     >
+      <PrintableGiftSheets
+        gift={gift}
+        coupons={coupons}
+        qrUrl={printQrUrl}
+        shareUrl={shareUrl}
+      />
+
+      {gift.audio ? (
+        <div
+          className={
+            experienceStarted
+              ? "fixed bottom-[6.25rem] left-4 z-40 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/12 bg-black/36 p-3 text-white shadow-violet backdrop-blur-xl sm:bottom-24"
+              : "sr-only"
+          }
+        >
+          <div className="mb-2 flex items-center gap-3">
+            <AudioWave active={audioPlaying && soundEnabled} />
+            <span className="text-xs font-bold uppercase text-pink-100">Som do presente</span>
+          </div>
+          {audioBlocked ? (
+            <p className="mb-2 max-w-64 text-xs leading-5 text-pink-100">
+              O celular bloqueou o inicio automatico. Toque no player para liberar o som.
+            </p>
+          ) : null}
+          <audio
+            ref={audioRef}
+            src={gift.audio.url}
+            controls
+            preload="auto"
+            className="w-64 max-w-full opacity-90"
+            onPlay={() => {
+              setAudioPlaying(true);
+              setAudioBlocked(false);
+            }}
+            onPause={() => setAudioPlaying(false)}
+            onEnded={() => setAudioPlaying(false)}
+          />
+        </div>
+      ) : null}
+
+      {experienceStarted && mediaEmbedUrl && currentSlide.type !== "ending" ? (
+        <MusicDock mediaEmbedUrl={mediaEmbedUrl} initiallyOpen={soundEnabled && !gift.audio} />
+      ) : null}
+
       {!soundReady ? (
         <SoundStartGate
           gift={gift}
-          onStart={(withSound) => {
-            setSoundEnabled(withSound);
-            setSoundReady(true);
-          }}
+          onStart={startExperience}
         />
       ) : null}
 
@@ -764,6 +1066,11 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
           onOpen={() => {
             setSealed(false);
           }}
+          onPrintInvite={() => printSheet("invite")}
+          onPrintCoupons={() => printSheet("coupons")}
+          canPrint={Boolean(printQrUrl)}
+          hasCoupons
+          qrUrl={printQrUrl}
         />
       ) : null}
 
@@ -857,14 +1164,16 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
           <motion.div
             className="relative z-20 h-full"
             drag="x"
+            dragDirectionLock
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.16}
             onDragEnd={handleDragEnd}
+            style={{ touchAction: "pan-y" }}
           >
             <AnimatePresence mode="wait">
               <motion.section
                 key={currentSlide.id}
-                className={`relative flex h-full items-start justify-center overflow-y-auto px-5 pb-36 pt-28 sm:items-center sm:px-10 ${
+                className={`mobile-safe-slide relative flex h-full items-start justify-center overflow-y-auto overscroll-contain px-4 pb-40 pt-24 sm:items-center sm:px-10 sm:pb-36 sm:pt-28 ${
                   experienceStyle === "scrapbook" ? "scrapbook-scene" : ""
                 }`}
                 initial={{ opacity: 0, y: 28, scale: 0.99 }}
@@ -977,16 +1286,6 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
           </motion.section>
         </AnimatePresence>
       </motion.div>
-
-      {gift.audio ? (
-        <div className="fixed bottom-24 left-4 z-40 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/12 bg-black/32 p-3 text-white backdrop-blur-xl">
-          <div className="mb-2 flex items-center gap-3">
-            <AudioWave active={!audioRef.current?.paused && soundEnabled} />
-            <span className="text-xs font-bold uppercase text-pink-100">Voz</span>
-          </div>
-          <audio ref={audioRef} src={gift.audio.url} controls className="w-64 max-w-full opacity-90" />
-        </div>
-      ) : null}
 
       <button
         type="button"

@@ -202,6 +202,279 @@ button:disabled {
   mask-image: radial-gradient(circle at center, black, transparent 75%);
 }
 
+.printable-gift-pages {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .gift-experience .font-display {
+    overflow-wrap: anywhere;
+  }
+
+  .gift-experience h1.font-display {
+    font-size: clamp(2.65rem, 13vw, 4.4rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  .gift-experience h2.font-display {
+    font-size: clamp(2.25rem, 10.5vw, 3.7rem) !important;
+    line-height: 1.06 !important;
+  }
+
+  .gift-experience .mobile-safe-slide {
+    scrollbar-width: none;
+  }
+
+  .gift-experience .mobile-safe-slide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html[data-print-mode],
+  html[data-print-mode] body {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff !important;
+    color: #24111d !important;
+  }
+
+  html[data-print-mode] body * {
+    visibility: hidden !important;
+  }
+
+  html[data-print-mode] .printable-gift-pages,
+  html[data-print-mode] .printable-gift-pages * {
+    visibility: visible !important;
+  }
+
+  html[data-print-mode] .printable-gift-pages {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    z-index: 999999;
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff;
+  }
+
+  html[data-print-mode] .printable-page {
+    position: relative;
+    display: block;
+    width: 210mm;
+    min-height: 297mm;
+    overflow: hidden;
+    padding: 18mm;
+    page-break-after: always;
+    background:
+      radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.2), transparent 45mm),
+      radial-gradient(circle at 92% 14%, rgba(139, 92, 246, 0.18), transparent 46mm),
+      linear-gradient(145deg, #fff8fb 0%, #fff1f8 48%, #f5efff 100%);
+    color: #24111d;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  html[data-print-mode="invite"] .printable-coupons,
+  html[data-print-mode="coupons"] .printable-invite {
+    display: none !important;
+  }
+
+  html[data-print-mode] .print-ornament {
+    position: absolute;
+    width: 72mm;
+    height: 72mm;
+    border-radius: 999px;
+    border: 1px solid rgba(236, 72, 153, 0.18);
+    background: rgba(255, 255, 255, 0.36);
+  }
+
+  html[data-print-mode] .print-ornament-left {
+    left: -28mm;
+    bottom: -22mm;
+  }
+
+  html[data-print-mode] .print-ornament-right {
+    right: -24mm;
+    top: -18mm;
+  }
+
+  html[data-print-mode] .print-invite-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    min-height: 252mm;
+    grid-template-rows: 1fr auto;
+    gap: 12mm;
+    border: 1px solid rgba(236, 72, 153, 0.28);
+    border-radius: 8mm;
+    padding: 16mm;
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  html[data-print-mode] .print-eyebrow {
+    margin: 0 0 7mm;
+    color: #be185d;
+    font-size: 10pt;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  html[data-print-mode] .print-invite-copy h1 {
+    max-width: 150mm;
+    margin: 0;
+    color: #4c102f;
+    font-family: var(--font-playfair), Georgia, serif;
+    font-size: 46pt;
+    line-height: 0.98;
+  }
+
+  html[data-print-mode] .print-subtitle {
+    max-width: 138mm;
+    margin: 8mm 0 0;
+    color: #6b2149;
+    font-size: 16pt;
+    line-height: 1.45;
+  }
+
+  html[data-print-mode] .print-date-row {
+    display: flex;
+    gap: 4mm;
+    flex-wrap: wrap;
+    margin-top: 10mm;
+  }
+
+  html[data-print-mode] .print-date-row span {
+    border: 1px solid rgba(190, 24, 93, 0.18);
+    border-radius: 999px;
+    padding: 3mm 5mm;
+    background: #ffffff;
+    color: #7e1648;
+    font-size: 10pt;
+    font-weight: 800;
+  }
+
+  html[data-print-mode] .print-note {
+    margin: 13mm 0 0;
+    color: #7e1648;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  html[data-print-mode] .print-qr-card {
+    display: grid;
+    grid-template-columns: 42mm 1fr;
+    align-items: center;
+    gap: 9mm;
+    border-radius: 7mm;
+    padding: 8mm;
+    background: #ffffff;
+    box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+  }
+
+  html[data-print-mode] .print-cover {
+    width: 42mm;
+    height: 42mm;
+    border-radius: 5mm;
+    object-fit: cover;
+  }
+
+  html[data-print-mode] .print-qr-frame {
+    display: flex;
+    justify-content: center;
+  }
+
+  html[data-print-mode] .print-qr-frame img {
+    width: 58mm;
+    height: 58mm;
+  }
+
+  html[data-print-mode] .print-qr-card p {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #7e1648;
+    font-size: 8pt;
+    word-break: break-all;
+  }
+
+  html[data-print-mode] .print-coupon-header {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 9mm;
+    text-align: center;
+  }
+
+  html[data-print-mode] .print-coupon-header h2 {
+    margin: 0;
+    color: #4c102f;
+    font-family: var(--font-playfair), Georgia, serif;
+    font-size: 34pt;
+    line-height: 1;
+  }
+
+  html[data-print-mode] .print-coupon-header p:last-child {
+    margin: 4mm 0 0;
+    color: #7e1648;
+    font-size: 11pt;
+  }
+
+  html[data-print-mode] .print-coupon-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7mm;
+  }
+
+  html[data-print-mode] .print-coupon {
+    min-height: 45mm;
+    border: 1px dashed rgba(190, 24, 93, 0.55);
+    border-radius: 6mm;
+    padding: 7mm;
+    background: rgba(255, 255, 255, 0.82);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  html[data-print-mode] .print-coupon span {
+    color: #be185d;
+    font-size: 8pt;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  html[data-print-mode] .print-coupon h3 {
+    margin: 3mm 0 2mm;
+    color: #4c102f;
+    font-family: var(--font-playfair), Georgia, serif;
+    font-size: 18pt;
+    line-height: 1.05;
+  }
+
+  html[data-print-mode] .print-coupon p {
+    margin: 0;
+    color: #6b2149;
+    font-size: 10pt;
+    line-height: 1.35;
+  }
+
+  html[data-print-mode] .print-coupon-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 4mm;
+    margin-top: 6mm;
+    border-top: 1px solid rgba(190, 24, 93, 0.16);
+    padding-top: 3mm;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

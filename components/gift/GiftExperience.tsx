@@ -34,8 +34,10 @@ import {
 import QRCode from "qrcode";
 import {
   CSSProperties,
-  PointerEvent,
   RefObject,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -1804,6 +1806,9 @@ function ConstellationSlide({
   const [tapCount, setTapCount] = useState(0);
   const [tripleSecretOpen, setTripleSecretOpen] = useState(false);
   const initials = `${gift.creatorName[0] || ""}${gift.recipientName[0] || ""}`.toUpperCase();
+  const safeHiddenMessages = hiddenMessages.length
+    ? hiddenMessages
+    : ["Algumas estrelas guardam segredos que so aparecem para quem olha com calma."];
   const stars = useMemo(
     () =>
       Array.from({ length: 24 }, (_, index) => ({
@@ -1823,6 +1828,23 @@ function ConstellationSlide({
       })),
     []
   );
+
+  function selectHiddenMessage(index: number) {
+    setSelected(index % safeHiddenMessages.length);
+  }
+
+  function stopSecretGesture(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+  }
+
+  function stopSecretKeyboard(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+  }
+
+  function handleSecretClick(event: ReactMouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    revealTripleSecret();
+  }
 
   function revealTripleSecret() {
     setTapCount((current) => {
@@ -1880,7 +1902,12 @@ function ConstellationSlide({
           <motion.button
             key={index}
             type="button"
-            onClick={() => setSelected(index % hiddenMessages.length)}
+            onPointerDown={stopSecretGesture}
+            onPointerUp={stopSecretGesture}
+            onClick={(event) => {
+              event.stopPropagation();
+              selectHiddenMessage(index);
+            }}
             className="absolute rounded-full bg-white shadow-glow transition hover:scale-150"
             style={{
               left: `${star.x}%`,
@@ -1923,12 +1950,15 @@ function ConstellationSlide({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {hiddenMessages[selected]}
+          {safeHiddenMessages[selected % safeHiddenMessages.length]}
         </motion.p>
         <button
           type="button"
-          onClick={revealTripleSecret}
-          className="mt-4 rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-pink-100 backdrop-blur-xl hover:bg-white/16"
+          onPointerDown={stopSecretGesture}
+          onPointerUp={stopSecretGesture}
+          onKeyDown={stopSecretKeyboard}
+          onClick={handleSecretClick}
+          className="mt-4 touch-manipulation select-none rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-pink-100 backdrop-blur-xl hover:bg-white/16"
         >
           Toque 3 vezes para revelar
         </button>
@@ -2151,7 +2181,7 @@ function ScratchSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual })
     gift.finalSignature ||
     `Eu escolheria viver tudo de novo, se no final o caminho ainda me levasse até ${gift.recipientName}.`;
 
-  function revealMore(event: PointerEvent<HTMLDivElement>) {
+  function revealMore(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.buttons === 0 && event.pointerType !== "touch") {
       return;
     }

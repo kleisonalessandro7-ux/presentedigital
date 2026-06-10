@@ -35,7 +35,7 @@ export function getMediaEmbedUrl(url?: string) {
     if (host === "youtu.be") {
       const id = parsed.pathname.split("/").filter(Boolean)[0];
       return id
-        ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0`
+        ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0&playsinline=1&controls=1`
         : null;
     }
 
@@ -44,19 +44,37 @@ export function getMediaEmbedUrl(url?: string) {
       const id =
         parsed.searchParams.get("v") ||
         (pathnameParts[0] === "embed" ? pathnameParts[1] : undefined) ||
-        (pathnameParts[0] === "shorts" ? pathnameParts[1] : undefined);
+        (pathnameParts[0] === "shorts" ? pathnameParts[1] : undefined) ||
+        (pathnameParts[0] === "live" ? pathnameParts[1] : undefined);
+      const playlist = parsed.searchParams.get("list");
 
-      return id
-        ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0`
+      if (id) {
+        return `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0&playsinline=1&controls=1`;
+      }
+
+      return playlist
+        ? `https://www.youtube.com/embed/videoseries?list=${playlist}&autoplay=1&loop=1&rel=0&playsinline=1&controls=1`
         : null;
     }
 
     if (host.includes("spotify.com")) {
-      const [kind, id] = parsed.pathname.split("/").filter(Boolean);
+      const pathnameParts = parsed.pathname.split("/").filter(Boolean);
       const allowed = ["track", "playlist", "album", "episode", "show"];
+      let kind = pathnameParts[0];
+      let id = pathnameParts[1];
+
+      if (pathnameParts[0] === "embed") {
+        kind = pathnameParts[1];
+        id = pathnameParts[2];
+      }
+
+      if (pathnameParts[0]?.startsWith("intl-")) {
+        kind = pathnameParts[1];
+        id = pathnameParts[2];
+      }
 
       return kind && id && allowed.includes(kind)
-        ? `https://open.spotify.com/embed/${kind}/${id}?utm_source=generator`
+        ? `https://open.spotify.com/embed/${kind}/${id}?utm_source=generator&theme=0`
         : null;
     }
   } catch {

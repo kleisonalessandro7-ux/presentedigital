@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Copy,
   Download,
+  ExternalLink,
   Heart,
   Images,
   LockKeyhole,
@@ -32,6 +33,7 @@ import QRCode from "qrcode";
 import {
   CSSProperties,
   PointerEvent,
+  RefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -514,24 +516,6 @@ function SurpriseGate({
   );
 }
 
-function AudioWave({ active }: { active: boolean }) {
-  return (
-    <div className="flex h-10 items-end gap-1">
-      {Array.from({ length: 22 }, (_, index) => (
-        <span
-          key={index}
-          className="w-1 rounded-full bg-pink-200"
-          style={{
-            height: `${8 + (index % 7) * 4}px`,
-            animation: active ? `softPulse ${0.8 + (index % 5) * 0.12}s ease-in-out infinite` : undefined,
-            opacity: active ? 0.9 : 0.35
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function GiftQrCode({ onReady }: { onReady?: (dataUrl: string) => void }) {
   const [qr, setQr] = useState("");
 
@@ -560,16 +544,23 @@ function GiftQrCode({ onReady }: { onReady?: (dataUrl: string) => void }) {
   );
 }
 
-function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; initiallyOpen: boolean }) {
-  const [mode, setMode] = useState<"open" | "minimized" | "hidden">("minimized");
+type MusicDockMode = "open" | "minimized" | "hidden";
+
+function MusicDock({
+  mediaEmbedUrl,
+  sourceUrl,
+  mode,
+  onModeChange
+}: {
+  mediaEmbedUrl: string;
+  sourceUrl?: string;
+  mode: MusicDockMode;
+  onModeChange: (mode: MusicDockMode) => void;
+}) {
   const isSpotify = mediaEmbedUrl.includes("spotify.com");
 
-  useEffect(() => {
-    setMode(initiallyOpen && window.innerWidth >= 768 ? "open" : "minimized");
-  }, [initiallyOpen]);
-
   return (
-    <div className="fixed bottom-[10.75rem] right-4 z-40 w-[min(22rem,calc(100vw-2rem))] text-white sm:bottom-24">
+    <div className="fixed right-3 top-[4.85rem] z-40 w-[min(22rem,calc(100vw-1.5rem))] text-white sm:bottom-24 sm:right-4 sm:top-auto">
       <div
         className={`overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl transition duration-300 ${
           mode === "open"
@@ -585,14 +576,14 @@ function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; in
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setMode("minimized")}
+                onClick={() => onModeChange("minimized")}
                 className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
               >
                 Minimizar
               </button>
               <button
                 type="button"
-                onClick={() => setMode("hidden")}
+                onClick={() => onModeChange("hidden")}
                 className="rounded-full border border-white/12 px-3 py-1 text-xs font-bold text-white/80"
               >
                 Esconder
@@ -604,22 +595,81 @@ function MusicDock({ mediaEmbedUrl, initiallyOpen }: { mediaEmbedUrl: string; in
             src={mediaEmbedUrl}
             className={`w-full rounded-xl border-0 ${isSpotify ? "h-24" : "h-44"}`}
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
           />
+          {sourceUrl ? (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex h-9 items-center gap-2 rounded-full border border-white/12 px-3 text-xs font-bold text-pink-100 hover:bg-white/10"
+            >
+              <ExternalLink size={14} aria-hidden="true" />
+              Abrir no app
+            </a>
+          ) : null}
       </div>
 
       {mode !== "open" ? (
         <button
           type="button"
-          onClick={() => setMode("open")}
-          className={`ml-auto flex h-12 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition ${
+          onClick={() => onModeChange("open")}
+          className={`ml-auto flex h-11 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition ${
             mode === "hidden" ? "opacity-60" : "opacity-100"
           }`}
         >
           <Volume2 size={17} aria-hidden="true" />
-          {mode === "hidden" ? "Mostrar trilha" : "Tocar trilha"}
+          Trilha
         </button>
       ) : null}
+    </div>
+  );
+}
+
+function AudioDock({
+  audioRef,
+  sourceUrl,
+  visible,
+  active,
+  blocked,
+  onToggle,
+  onPlay,
+  onPause
+}: {
+  audioRef: RefObject<HTMLAudioElement>;
+  sourceUrl: string;
+  visible: boolean;
+  active: boolean;
+  blocked: boolean;
+  onToggle: () => void;
+  onPlay: () => void;
+  onPause: () => void;
+}) {
+  return (
+    <div
+      className={
+        visible
+          ? "fixed left-3 top-[4.85rem] z-40 text-white sm:bottom-24 sm:left-4 sm:top-auto"
+          : "sr-only"
+      }
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex h-11 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition hover:bg-black/55"
+      >
+        {active ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+        {blocked ? "Liberar som" : "Som"}
+      </button>
+      <audio
+        ref={audioRef}
+        src={sourceUrl}
+        className="sr-only"
+        preload="auto"
+        loop
+        onPlay={onPlay}
+        onPause={onPause}
+        onEnded={onPause}
+      />
     </div>
   );
 }
@@ -787,6 +837,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [musicMode, setMusicMode] = useState<MusicDockMode>("minimized");
   const [surpriseUnlocked, setSurpriseUnlocked] = useState(
     !gift.surpriseQuestion || !gift.surpriseAnswer
   );
@@ -862,6 +913,9 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
 
   function replay() {
     audioRef.current?.pause();
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+    }
     setAutoPlay(true);
     setCurrent(0);
     setSealed(true);
@@ -869,12 +923,17 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
     setSoundEnabled(false);
     setAudioPlaying(false);
     setAudioBlocked(false);
+    setMusicMode("minimized");
     setSurpriseUnlocked(!gift.surpriseQuestion || !gift.surpriseAnswer);
   }
 
   function startExperience(withSound: boolean) {
     setSoundEnabled(withSound);
     setSoundReady(true);
+
+    if (withSound && mediaEmbedUrl && !gift.audio) {
+      setMusicMode(window.innerWidth >= 768 ? "open" : "minimized");
+    }
 
     if (withSound && gift.audio && audioRef.current) {
       audioRef.current.volume = 0.86;
@@ -888,6 +947,30 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
           setAudioBlocked(true);
         });
     }
+  }
+
+  function toggleAudio() {
+    if (!audioRef.current) {
+      return;
+    }
+
+    if (audioRef.current.paused) {
+      audioRef.current.volume = 0.86;
+      void audioRef.current
+        .play()
+        .then(() => {
+          setAudioPlaying(true);
+          setAudioBlocked(false);
+          setSoundEnabled(true);
+        })
+        .catch(() => {
+          setAudioBlocked(true);
+        });
+      return;
+    }
+
+    audioRef.current.pause();
+    setAudioPlaying(false);
   }
 
   function printSheet(mode: PrintMode) {
@@ -1007,40 +1090,28 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
       />
 
       {gift.audio ? (
-        <div
-          className={
-            experienceStarted
-              ? "fixed bottom-[6.25rem] left-4 z-40 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/12 bg-black/36 p-3 text-white shadow-violet backdrop-blur-xl sm:bottom-24"
-              : "sr-only"
-          }
-        >
-          <div className="mb-2 flex items-center gap-3">
-            <AudioWave active={audioPlaying && soundEnabled} />
-            <span className="text-xs font-bold uppercase text-pink-100">Som do presente</span>
-          </div>
-          {audioBlocked ? (
-            <p className="mb-2 max-w-64 text-xs leading-5 text-pink-100">
-              O celular bloqueou o inicio automatico. Toque no player para liberar o som.
-            </p>
-          ) : null}
-          <audio
-            ref={audioRef}
-            src={gift.audio.url}
-            controls
-            preload="auto"
-            className="w-64 max-w-full opacity-90"
-            onPlay={() => {
-              setAudioPlaying(true);
-              setAudioBlocked(false);
-            }}
-            onPause={() => setAudioPlaying(false)}
-            onEnded={() => setAudioPlaying(false)}
-          />
-        </div>
+        <AudioDock
+          audioRef={audioRef}
+          sourceUrl={gift.audio.url}
+          visible={soundReady}
+          active={audioPlaying && soundEnabled}
+          blocked={audioBlocked}
+          onToggle={toggleAudio}
+          onPlay={() => {
+            setAudioPlaying(true);
+            setAudioBlocked(false);
+          }}
+          onPause={() => setAudioPlaying(false)}
+        />
       ) : null}
 
-      {experienceStarted && mediaEmbedUrl && currentSlide.type !== "ending" ? (
-        <MusicDock mediaEmbedUrl={mediaEmbedUrl} initiallyOpen={soundEnabled && !gift.audio} />
+      {soundReady && mediaEmbedUrl ? (
+        <MusicDock
+          mediaEmbedUrl={mediaEmbedUrl}
+          sourceUrl={gift.mediaUrl}
+          mode={musicMode}
+          onModeChange={setMusicMode}
+        />
       ) : null}
 
       {!soundReady ? (
@@ -1267,7 +1338,20 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
                 gift={gift}
                 reasons={reasons}
                 mediaEmbedUrl={mediaEmbedUrl}
+                mediaUrl={gift.mediaUrl}
+                hasAudio={Boolean(gift.audio)}
                 onReplay={replay}
+                onOpenMusic={() => {
+                  if (mediaEmbedUrl) {
+                    setMusicMode("open");
+                  }
+
+                  if (gift.audio && audioRef.current?.paused) {
+                    toggleAudio();
+                  }
+                }}
+                onPrintInvite={() => printSheet("invite")}
+                onPrintCoupons={() => printSheet("coupons")}
                 onGoTo={(type) => {
                   const target = slides.findIndex((slide) => slide.type === type);
                   if (target >= 0) {
@@ -2119,14 +2203,24 @@ function EndingSlide({
   gift,
   reasons,
   mediaEmbedUrl,
+  mediaUrl,
+  hasAudio,
   onReplay,
+  onOpenMusic,
+  onPrintInvite,
+  onPrintCoupons,
   onGoTo,
   visual
 }: {
   gift: GiftData;
   reasons: string[];
   mediaEmbedUrl: string | null;
+  mediaUrl?: string;
+  hasAudio: boolean;
   onReplay: () => void;
+  onOpenMusic: () => void;
+  onPrintInvite: () => void;
+  onPrintCoupons: () => void;
   onGoTo: (type: Slide["type"]) => void;
   visual: ThemeVisual;
 }) {
@@ -2172,6 +2266,15 @@ function EndingSlide({
     }
 
     await copyGiftLink();
+  }
+
+  function sendByWhatsApp() {
+    if (!shareUrl) {
+      return;
+    }
+
+    const message = `Abre esse presente que fiz para você: ${shareUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
 
   const handleQrReady = useCallback((dataUrl: string) => {
@@ -2226,6 +2329,24 @@ function EndingSlide({
           </button>
           <button
             type="button"
+            onClick={sendByWhatsApp}
+            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+          >
+            <Share2 size={17} aria-hidden="true" />
+            WhatsApp
+          </button>
+          {mediaEmbedUrl || hasAudio ? (
+            <button
+              type="button"
+              onClick={onOpenMusic}
+              className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            >
+              <Volume2 size={17} aria-hidden="true" />
+              Abrir trilha
+            </button>
+          ) : null}
+          <button
+            type="button"
             onClick={copyGiftLink}
             className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
           >
@@ -2240,6 +2361,22 @@ function EndingSlide({
           >
             <Download size={17} aria-hidden="true" />
             Baixar QR
+          </button>
+          <button
+            type="button"
+            onClick={onPrintInvite}
+            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+          >
+            <Printer size={17} aria-hidden="true" />
+            Convite
+          </button>
+          <button
+            type="button"
+            onClick={onPrintCoupons}
+            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+          >
+            <Ticket size={17} aria-hidden="true" />
+            Cupons
           </button>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
@@ -2281,23 +2418,38 @@ function EndingSlide({
 
       <div className="space-y-4">
         <div className="rounded-2xl border border-white/14 bg-black/24 p-3 shadow-violet backdrop-blur-xl">
-          {mediaEmbedUrl ? (
-            <iframe
-              title="Música do presente"
-              src={mediaEmbedUrl}
-              className="h-[284px] w-full rounded-xl border-0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-[284px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/8 px-6 text-center">
-              <Volume2 size={34} className="mb-4 text-pink-200" aria-hidden="true" />
-              <p className="text-lg font-bold text-white">Nossa trilha sonora</p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                A trilha sonora fica guardada aqui.
-              </p>
-            </div>
-          )}
+          <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-white/10 bg-white/8 px-6 text-center">
+            <Volume2 size={34} className="mb-4 text-pink-200" aria-hidden="true" />
+            <p className="text-lg font-bold text-white">Nossa trilha sonora</p>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              {mediaEmbedUrl || hasAudio
+                ? "A trilha continua no player pequeno da tela."
+                : "A trilha sonora fica guardada aqui."}
+            </p>
+            {mediaEmbedUrl || hasAudio ? (
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={onOpenMusic}
+                  className="inline-flex h-11 items-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-glow transition hover:bg-pink-100"
+                >
+                  <Volume2 size={16} aria-hidden="true" />
+                  Abrir trilha
+                </button>
+                {mediaUrl ? (
+                  <a
+                    href={mediaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+                  >
+                    <ExternalLink size={16} aria-hidden="true" />
+                    Abrir no app
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
         <div className="flex items-center gap-4 rounded-2xl border border-white/14 bg-white/10 p-4 backdrop-blur-xl">
           <GiftQrCode onReady={handleQrReady} />

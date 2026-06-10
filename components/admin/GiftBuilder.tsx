@@ -2198,12 +2198,16 @@ export function GiftBuilder({
                       placeholder="https://open.spotify.com/... ou https://youtube.com/..."
                     />
                   </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-400">
+                    No celular, Spotify e YouTube podem pedir um toque no player.
+                    Para tocar do começo com mais estabilidade, envie um MP3 no campo ao lado.
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="mb-4 flex items-center gap-3">
                     <Mic size={20} className="text-pink-200" aria-hidden="true" />
-                    <h3 className="text-lg font-bold text-white">Áudio pessoal</h3>
+                    <h3 className="text-lg font-bold text-white">Áudio ou trilha pessoal</h3>
                   </div>
                   <label
                     htmlFor="audio"

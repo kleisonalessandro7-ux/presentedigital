@@ -36,6 +36,15 @@ function localPath(slug: string) {
   return `reactions/${ensureSlug(slug)}.json`;
 }
 
+async function saveLocalReaction(slug: string, reaction: GiftReactionRecord) {
+  const current = await readJsonBlob<GiftReactionRecord[]>(localPath(slug), []);
+  await putJsonBlob(localPath(slug), [reaction, ...current], { allowOverwrite: true });
+}
+
+async function readLocalReactions(slug: string) {
+  return readJsonBlob<GiftReactionRecord[]>(localPath(slug), []);
+}
+
 export async function saveGiftReaction(slug: string, input: GiftReactionInput) {
   const cleanSlug = ensureSlug(slug);
   const now = new Date().toISOString();
@@ -62,14 +71,14 @@ export async function saveGiftReaction(slug: string, input: GiftReactionInput) {
     });
 
     if (error) {
-      throw new Error(`Erro ao salvar reação: ${error.message}`);
+      await saveLocalReaction(cleanSlug, reaction);
+      return reaction;
     }
 
     return reaction;
   }
 
-  const current = await readGiftReactions(cleanSlug);
-  await putJsonBlob(localPath(cleanSlug), [reaction, ...current], { allowOverwrite: true });
+  await saveLocalReaction(cleanSlug, reaction);
   return reaction;
 }
 
@@ -86,7 +95,7 @@ export async function readGiftReactions(slug: string) {
       .limit(100);
 
     if (error) {
-      throw new Error(`Erro ao listar reações: ${error.message}`);
+      return readLocalReactions(cleanSlug);
     }
 
     return (data || []).map((row) => ({
@@ -100,5 +109,5 @@ export async function readGiftReactions(slug: string) {
     })) as GiftReactionRecord[];
   }
 
-  return readJsonBlob<GiftReactionRecord[]>(localPath(cleanSlug), []);
+  return readLocalReactions(cleanSlug);
 }

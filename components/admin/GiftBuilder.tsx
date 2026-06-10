@@ -1341,7 +1341,7 @@ export function GiftBuilder({
   }
 
   function openRecipientPreview() {
-    window.sessionStorage.setItem("gift-preview", JSON.stringify(draft));
+    window.localStorage.setItem("gift-preview", JSON.stringify(draft));
     window.open("/presente/preview", "_blank", "noopener,noreferrer");
   }
 

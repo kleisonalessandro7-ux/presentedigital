@@ -2026,7 +2026,7 @@ function PhotoSlide({
             <img
               src={photo.url}
               alt={`Memória ${index + 1}`}
-              className={`aspect-[4/3] w-full object-cover ${filterClass}`}
+              className={`aspect-[4/3] w-full bg-slate-100 object-contain ${filterClass}`}
             />
           </motion.div>
         </div>
@@ -2035,9 +2035,9 @@ function PhotoSlide({
           key={photo.url}
           src={photo.url}
           alt={`Memória ${index + 1}`}
-          className={`ken-burns h-full w-full object-cover ${filterClass}`}
-          initial={{ scale: 1.08, x: index % 2 === 0 ? -18 : 18 }}
-          animate={{ scale: 1.22, x: index % 2 === 0 ? 18 : -18 }}
+          className={`ken-burns h-full w-full bg-black object-contain p-3 sm:p-8 ${filterClass}`}
+          initial={{ scale: 1.01, x: index % 2 === 0 ? -8 : 8 }}
+          animate={{ scale: 1.08, x: index % 2 === 0 ? 8 : -8 }}
           transition={{ duration: experienceStyle === "cinema" ? 11 : 8.5, ease: "easeOut" }}
         />
       )}
@@ -2269,14 +2269,14 @@ function AlbumSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual }) {
         Tudo isso também é um jeito de dizer amor.
       </h2>
       <div className="mt-9 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-white/10 p-3 shadow-violet backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-black/24 p-3 shadow-violet backdrop-blur-xl">
           {current ? (
             <>
               <motion.img
                 key={current.pathname}
                 src={current.url}
                 alt={current.caption || "Foto do álbum"}
-                className="max-h-[46vh] w-full rounded-xl object-cover"
+                className="mx-auto max-h-[56vh] w-auto max-w-full rounded-xl object-contain"
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
               />
@@ -2324,7 +2324,7 @@ function AlbumSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual }) {
               <img
                 src={photo.url}
                 alt=""
-                className="h-full w-full object-cover transition duration-500 hover:scale-110"
+                className="h-full w-full bg-black/30 object-contain p-1 transition duration-500 hover:scale-105"
               />
             </button>
           ))}
@@ -2420,6 +2420,11 @@ function EndingSlide({
 
   async function sendReaction() {
     setReactionStatus("sending");
+
+    if (gift.slug === "preview") {
+      window.setTimeout(() => setReactionStatus("sent"), 350);
+      return;
+    }
 
     const response = await fetch(`/api/presente/${gift.slug}/reactions`, {
       method: "POST",

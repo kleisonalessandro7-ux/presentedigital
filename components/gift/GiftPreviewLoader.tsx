@@ -53,7 +53,10 @@ export function GiftPreviewLoader() {
   const [gift, setGift] = useState<GiftData | null>(null);
 
   useEffect(() => {
-    const raw = window.sessionStorage.getItem("gift-preview");
+    const raw =
+      window.localStorage.getItem("gift-preview") ||
+      window.sessionStorage.getItem("gift-preview") ||
+      window.localStorage.getItem("presente-digital-draft");
 
     if (!raw) {
       return;

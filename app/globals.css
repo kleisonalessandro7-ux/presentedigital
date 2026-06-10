@@ -492,6 +492,95 @@ button:disabled {
   padding-top: 3mm;
 }
 
+.gift-print-cover-page,
+.gift-print-fold-card,
+.gift-print-envelope {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.gift-print-cover-page h1,
+.gift-print-fold-card h1,
+.gift-print-envelope h1 {
+  margin: 0;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 42pt;
+  line-height: 1;
+}
+
+.gift-print-cover-page p,
+.gift-print-fold-card p,
+.gift-print-envelope p,
+.gift-print-envelope span {
+  color: #7e1648;
+  font-size: 13pt;
+  line-height: 1.5;
+}
+
+.gift-print-cover-page > div {
+  max-width: 145mm;
+  border: 1px solid rgba(190, 24, 93, 0.22);
+  border-radius: 9mm;
+  padding: 18mm;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.gift-print-fold-card {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  padding: 0;
+}
+
+.gift-print-fold-half {
+  display: flex;
+  min-height: 148.5mm;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(190, 24, 93, 0.28);
+  padding: 18mm;
+}
+
+.gift-print-fold-half strong {
+  margin-top: 8mm;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 24pt;
+}
+
+.gift-print-envelope {
+  padding: 18mm;
+}
+
+.gift-print-envelope-flap {
+  position: absolute;
+  top: 36mm;
+  width: 150mm;
+  height: 76mm;
+  border: 1px dashed rgba(190, 24, 93, 0.34);
+  background: rgba(255, 255, 255, 0.38);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.gift-print-envelope-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 150mm;
+  min-height: 92mm;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(190, 24, 93, 0.32);
+  border-radius: 4mm;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+}
+
 @media (max-width: 640px) {
   .gift-experience .font-display {
     overflow-wrap: anywhere;

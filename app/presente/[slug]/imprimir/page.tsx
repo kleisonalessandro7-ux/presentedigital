@@ -127,6 +127,43 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
         </section>
       ) : null}
 
+      {mode === "package" ? (
+        <>
+          <section className="gift-print-page gift-print-cover-page">
+            <div>
+              <p className="gift-print-eyebrow">Para entregar em mãos</p>
+              <h1>Um presente para {gift.recipientName}</h1>
+              <p>
+                Abra com calma. Cada página aqui guarda um pedaço do carinho de {gift.creatorName}.
+              </p>
+            </div>
+          </section>
+
+          <section className="gift-print-page gift-print-fold-card">
+            <div className="gift-print-fold-half">
+              <p className="gift-print-eyebrow">Dobre aqui</p>
+              <h1>{gift.recipientName}</h1>
+              <p>Tem uma surpresa esperando por você.</p>
+            </div>
+            <div className="gift-print-fold-half">
+              <p>
+                Aponte a câmera para o QR Code do convite e abra quando puder viver este momento sem pressa.
+              </p>
+              <strong>{gift.creatorName}</strong>
+            </div>
+          </section>
+
+          <section className="gift-print-page gift-print-envelope">
+            <div className="gift-print-envelope-flap" />
+            <div className="gift-print-envelope-body">
+              <p>Para</p>
+              <h1>{gift.recipientName}</h1>
+              <span>Com amor de {gift.creatorName}</span>
+            </div>
+          </section>
+        </>
+      ) : null}
+
       {mode === "coupons" || mode === "package" ? (
         <section className="gift-print-page gift-print-coupons">
           <div className="gift-print-coupon-header">

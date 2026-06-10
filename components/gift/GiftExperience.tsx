@@ -1801,6 +1801,8 @@ function ConstellationSlide({
   visual: ThemeVisual;
 }) {
   const [selected, setSelected] = useState(0);
+  const [tapCount, setTapCount] = useState(0);
+  const [tripleSecretOpen, setTripleSecretOpen] = useState(false);
   const initials = `${gift.creatorName[0] || ""}${gift.recipientName[0] || ""}`.toUpperCase();
   const stars = useMemo(
     () =>
@@ -1821,6 +1823,19 @@ function ConstellationSlide({
       })),
     []
   );
+
+  function revealTripleSecret() {
+    setTapCount((current) => {
+      const next = current + 1;
+
+      if (next >= 3) {
+        setTripleSecretOpen(true);
+        return 0;
+      }
+
+      return next;
+    });
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-6xl items-center gap-5 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -1910,6 +1925,26 @@ function ConstellationSlide({
         >
           {hiddenMessages[selected]}
         </motion.p>
+        <button
+          type="button"
+          onClick={revealTripleSecret}
+          className="mt-4 rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-pink-100 backdrop-blur-xl hover:bg-white/16"
+        >
+          Toque 3 vezes para revelar
+        </button>
+        {tripleSecretOpen ? (
+          <motion.p
+            className="mt-3 rounded-2xl border border-pink-200/20 bg-pink-500/12 p-4 text-base font-semibold leading-7 text-pink-100"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            Segredo: algumas estrelas só brilham porque lembram você.
+          </motion.p>
+        ) : tapCount ? (
+          <p className="mt-2 text-xs font-semibold text-pink-100/80">
+            Mais {3 - tapCount} toque{3 - tapCount === 1 ? "" : "s"}.
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -2192,6 +2227,17 @@ function MessageSlide({
   active: boolean;
   visual: ThemeVisual;
 }) {
+  function saveLetter() {
+    const content = `${gift.recipientName},\n\n${gift.message}\n\n${gift.finalSignature || gift.creatorName}`;
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `carta-${gift.slug}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="mx-auto max-w-4xl">
       <p className={`mb-6 text-center text-sm font-bold uppercase ${visual.accent}`}>
@@ -2213,6 +2259,14 @@ function MessageSlide({
         <p className="relative mt-8 text-right font-display text-2xl text-rose-700">
           {gift.finalSignature || gift.creatorName}
         </p>
+        <button
+          type="button"
+          onClick={saveLetter}
+          className="relative mx-auto mt-6 inline-flex h-11 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white shadow-glow hover:bg-slate-800"
+        >
+          <Download size={16} aria-hidden="true" />
+          Guardar essa carta
+        </button>
       </motion.div>
     </div>
   );

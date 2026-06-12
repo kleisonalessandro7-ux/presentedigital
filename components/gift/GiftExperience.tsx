@@ -5,6 +5,7 @@ import {
   animate,
   motion,
   type PanInfo,
+  useDragControls,
   useMotionValue,
   useTransform
 } from "framer-motion";
@@ -79,6 +80,33 @@ type Slide =
   | { id: "promises"; type: "promises"; chapter: string }
   | { id: "album"; type: "album"; chapter: string }
   | { id: "ending"; type: "ending"; chapter: string };
+
+function isSlideInteractiveTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+
+  return Boolean(
+    target.closest(
+      [
+        "button",
+        "a",
+        "input",
+        "textarea",
+        "select",
+        "label",
+        "video",
+        "audio",
+        "iframe",
+        "[role='button']",
+        "[role='tab']",
+        "[role='slider']",
+        "[contenteditable='true']",
+        "[data-no-slide-drag='true']"
+      ].join(",")
+    )
+  );
+}
 
 const defaultReasons = [
   "o seu jeito de sorrir",
@@ -924,6 +952,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const [shareUrl, setShareUrl] = useState("");
   const [printQrUrl, setPrintQrUrl] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const slideDragControls = useDragControls();
   const currentSlide = slides[current];
   const primary = gift.primaryColor || "#ec4899";
   const experienceStyle = gift.experienceStyle || "classic";
@@ -934,14 +963,18 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const currentDelay =
     (gift.slideDurations || {})[currentSlide.type as keyof GiftData["slideDurations"]] ||
     (currentSlide.type === "message"
-      ? 15
+      ? 18
       : currentSlide.type === "photo"
-        ? 9
+        ? 10
         : currentSlide.type === "video"
-          ? 12
-          : currentSlide.type === "scratch"
-            ? 11
-            : 8);
+          ? 30
+          : currentSlide.type === "coupons"
+            ? 16
+            : currentSlide.type === "constellation" || currentSlide.type === "album"
+              ? 14
+              : currentSlide.type === "scratch" || currentSlide.type === "capsule"
+                ? 14
+                : 9);
 
   const experienceStarted = soundReady && surpriseUnlocked && !sealed;
   const particles = useMemo(
@@ -1051,6 +1084,37 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
     const type = mode === "coupons" ? "cupons" : "convite";
     window.open(`/presente/${gift.slug}/imprimir?tipo=${type}`, "_blank", "noopener,noreferrer");
   }
+
+  const holdForInteraction = useCallback((seconds = 18) => {
+    setHoldUntil(Date.now() + seconds * 1000);
+  }, []);
+
+  const handleSlidePointerDownCapture = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (isSlideInteractiveTarget(event.target)) {
+        holdForInteraction(18);
+        return;
+      }
+
+      slideDragControls.start(event);
+    },
+    [holdForInteraction, slideDragControls]
+  );
+
+  const handleVideoPlay = useCallback(() => {
+    setAutoPlay(false);
+    holdForInteraction(600);
+  }, [holdForInteraction]);
+
+  const handleVideoPause = useCallback(() => {
+    setAutoPlay(true);
+    holdForInteraction(10);
+  }, [holdForInteraction]);
+
+  const handleVideoEnded = useCallback(() => {
+    setAutoPlay(true);
+    holdForInteraction(4);
+  }, [holdForInteraction]);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (info.offset.x < -70) {
@@ -1307,9 +1371,12 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
           <motion.div
             className="relative z-20 h-full"
             drag="x"
+            dragControls={slideDragControls}
             dragDirectionLock
+            dragListener={false}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.16}
+            onPointerDownCapture={handleSlidePointerDownCapture}
             onDragEnd={handleDragEnd}
             style={{ touchAction: "pan-y" }}
           >
@@ -1380,7 +1447,13 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
             ) : null}
 
             {currentSlide.type === "video" ? (
-              <VideoSlide video={currentSlide.video} visual={visual} />
+              <VideoSlide
+                video={currentSlide.video}
+                visual={visual}
+                onPlay={handleVideoPlay}
+                onPause={handleVideoPause}
+                onEnded={handleVideoEnded}
+              />
             ) : null}
 
             {currentSlide.type === "scratch" ? (
@@ -1689,13 +1762,13 @@ function CouponsSlide({
   coupons: GiftCoupon[];
   visual: ThemeVisual;
 }) {
-  const [opened, setOpened] = useState<string[]>([]);
+  const [opened, setOpened] = useState<number[]>([]);
 
-  function toggle(title: string) {
+  function toggle(index: number) {
     setOpened((current) =>
-      current.includes(title)
-        ? current.filter((item) => item !== title)
-        : [...current, title]
+      current.includes(index)
+        ? current.filter((item) => item !== index)
+        : [...current, index]
     );
   }
 
@@ -1709,19 +1782,24 @@ function CouponsSlide({
       </h2>
       <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {coupons.slice(0, 12).map((coupon, index) => {
-          const active = opened.includes(coupon.title);
+          const active = opened.includes(index);
 
           return (
             <motion.button
               key={`${coupon.title}-${index}`}
               type="button"
-              onClick={() => toggle(coupon.title)}
-              className="group relative min-h-48 overflow-hidden rounded-2xl border border-dashed border-pink-100/45 bg-white/10 p-5 text-left backdrop-blur-xl transition hover:bg-white/16"
+              data-no-slide-drag="true"
+              onClick={(event) => {
+                event.stopPropagation();
+                toggle(index);
+              }}
+              className="group relative block min-h-48 w-full touch-manipulation select-none overflow-hidden rounded-2xl border border-dashed border-pink-100/45 bg-white/10 p-5 text-left backdrop-blur-xl transition hover:bg-white/16 active:scale-[0.99]"
               initial={{ opacity: 0, y: 26, rotate: index % 2 ? 1.5 : -1.5 }}
               animate={{ opacity: 1, y: 0, rotate: index % 2 ? 1 : -1 }}
               transition={{ delay: index * 0.08 }}
+              whileTap={{ scale: 0.985 }}
             >
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full border border-dashed border-white/18" />
+              <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full border border-dashed border-white/18" />
               <Ticket className="mb-6 text-pink-100" size={28} aria-hidden="true" />
               <p className="text-sm font-bold uppercase text-pink-100">Cupom {index + 1}</p>
               <h3 className="mt-3 text-2xl font-bold">{coupon.title}</h3>
@@ -2151,15 +2229,34 @@ function PhotoSlide({
   );
 }
 
-function VideoSlide({ video, visual }: { video: GiftVideo; visual: ThemeVisual }) {
+function VideoSlide({
+  video,
+  visual,
+  onPlay,
+  onPause,
+  onEnded
+}: {
+  video: GiftVideo;
+  visual: ThemeVisual;
+  onPlay: () => void;
+  onPause: () => void;
+  onEnded: () => void;
+}) {
   return (
     <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="overflow-hidden rounded-2xl border border-white/14 bg-black/40 p-3 shadow-violet backdrop-blur-xl">
+      <div
+        data-no-slide-drag="true"
+        className="overflow-hidden rounded-2xl border border-white/14 bg-black/40 p-3 shadow-violet backdrop-blur-xl"
+      >
         <video
           src={video.url}
           controls
           playsInline
-          className="aspect-video w-full rounded-xl object-cover"
+          preload="metadata"
+          onPlay={onPlay}
+          onPause={onPause}
+          onEnded={onEnded}
+          className="aspect-video w-full touch-manipulation rounded-xl bg-black object-contain"
         />
       </div>
       <div>
@@ -2198,9 +2295,10 @@ function ScratchSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual })
         Passe o dedo para revelar.
       </h2>
       <div
+        data-no-slide-drag="true"
         onPointerDown={revealMore}
         onPointerMove={revealMore}
-        className="relative mx-auto mt-9 min-h-72 max-w-3xl overflow-hidden rounded-2xl border border-white/14 bg-white/10 p-8 shadow-glow backdrop-blur-xl"
+        className="relative mx-auto mt-9 min-h-72 max-w-3xl touch-none overflow-hidden rounded-2xl border border-white/14 bg-white/10 p-8 shadow-glow backdrop-blur-xl"
       >
         <p className="flex min-h-44 items-center justify-center font-display text-3xl leading-snug sm:text-5xl">
           {message}

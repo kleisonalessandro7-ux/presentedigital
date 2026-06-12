@@ -662,17 +662,9 @@ function MusicDock({
   const isSpotify = mediaEmbedUrl.includes("spotify.com");
 
   return (
-    <div className="fixed right-3 top-[4.85rem] z-40 w-[min(22rem,calc(100vw-1.5rem))] text-white sm:bottom-24 sm:right-4 sm:top-auto">
-      <div
-        className={`overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl transition duration-300 ${
-          mode === "open"
-            ? "translate-x-0 opacity-100"
-            : mode === "minimized"
-              ? "pointer-events-none translate-y-4 scale-95 opacity-0"
-              : "pointer-events-none translate-x-[calc(100%+2rem)] opacity-0"
-        }`}
-        aria-hidden={mode !== "open"}
-      >
+    <div className="pointer-events-none fixed right-3 top-[4.85rem] z-40 w-[min(22rem,calc(100vw-1.5rem))] text-white sm:bottom-24 sm:right-4 sm:top-auto">
+      {mode === "open" ? (
+        <div className="pointer-events-auto overflow-hidden rounded-2xl border border-white/12 bg-black/44 p-3 shadow-violet backdrop-blur-xl transition duration-300">
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-xs font-bold uppercase text-pink-100">Trilha sonora</p>
             <div className="flex gap-2">
@@ -709,13 +701,14 @@ function MusicDock({
               Abrir no app
             </a>
           ) : null}
-      </div>
+        </div>
+      ) : null}
 
       {mode !== "open" ? (
         <button
           type="button"
           onClick={() => onModeChange("open")}
-          className={`ml-auto flex h-11 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition ${
+          className={`pointer-events-auto ml-auto flex h-11 items-center gap-2 rounded-full border border-white/14 bg-black/42 px-4 text-sm font-bold text-white shadow-violet backdrop-blur-xl transition ${
             mode === "hidden" ? "opacity-60" : "opacity-100"
           }`}
         >
@@ -1763,6 +1756,7 @@ function CouponsSlide({
   visual: ThemeVisual;
 }) {
   const [opened, setOpened] = useState<number[]>([]);
+  const pointerStartRef = useRef<{ index: number; x: number; y: number } | null>(null);
 
   function toggle(index: number) {
     setOpened((current) =>
@@ -1770,6 +1764,45 @@ function CouponsSlide({
         ? current.filter((item) => item !== index)
         : [...current, index]
     );
+  }
+
+  function startCouponTouch(event: ReactPointerEvent<HTMLButtonElement>, index: number) {
+    event.stopPropagation();
+    pointerStartRef.current = {
+      index,
+      x: event.clientX,
+      y: event.clientY
+    };
+  }
+
+  function finishCouponTouch(event: ReactPointerEvent<HTMLButtonElement>, index: number) {
+    event.stopPropagation();
+    const start = pointerStartRef.current;
+    pointerStartRef.current = null;
+
+    if (!start || start.index !== index) {
+      return;
+    }
+
+    const movement = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+
+    if (movement <= 18) {
+      toggle(index);
+    }
+  }
+
+  function cancelCouponTouch() {
+    pointerStartRef.current = null;
+  }
+
+  function handleCouponKeyboard(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    toggle(index);
   }
 
   return (
@@ -1789,9 +1822,14 @@ function CouponsSlide({
               key={`${coupon.title}-${index}`}
               type="button"
               data-no-slide-drag="true"
+              onPointerDown={(event) => startCouponTouch(event, index)}
+              onPointerUp={(event) => finishCouponTouch(event, index)}
+              onPointerCancel={cancelCouponTouch}
+              onPointerLeave={cancelCouponTouch}
+              onKeyDown={(event) => handleCouponKeyboard(event, index)}
               onClick={(event) => {
+                event.preventDefault();
                 event.stopPropagation();
-                toggle(index);
               }}
               className="group relative block min-h-48 w-full touch-manipulation select-none overflow-hidden rounded-2xl border border-dashed border-pink-100/45 bg-white/10 p-5 text-left backdrop-blur-xl transition hover:bg-white/16 active:scale-[0.99]"
               initial={{ opacity: 0, y: 26, rotate: index % 2 ? 1.5 : -1.5 }}
@@ -2246,9 +2284,12 @@ function VideoSlide({
     <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div
         data-no-slide-drag="true"
+        onPointerDown={(event) => event.stopPropagation()}
+        onPointerUp={(event) => event.stopPropagation()}
         className="overflow-hidden rounded-2xl border border-white/14 bg-black/40 p-3 shadow-violet backdrop-blur-xl"
       >
         <video
+          data-no-slide-drag="true"
           src={video.url}
           controls
           playsInline
@@ -2256,6 +2297,8 @@ function VideoSlide({
           onPlay={onPlay}
           onPause={onPause}
           onEnded={onEnded}
+          onPointerDown={(event) => event.stopPropagation()}
+          onPointerUp={(event) => event.stopPropagation()}
           className="aspect-video w-full touch-manipulation rounded-xl bg-black object-contain"
         />
       </div>

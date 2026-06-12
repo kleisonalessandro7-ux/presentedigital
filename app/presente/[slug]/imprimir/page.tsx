@@ -17,6 +17,8 @@ type PrintGiftPageProps = {
   };
 };
 
+type PrintMode = "invite" | "coupons" | "letter" | "package";
+
 const fallbackCoupons: GiftCoupon[] = [
   {
     title: "Vale abraco demorado",
@@ -35,6 +37,40 @@ const fallbackCoupons: GiftCoupon[] = [
     description: "Um dia para caminhar, conversar e criar outra lembranca."
   }
 ];
+
+function chunkItems<T>(items: T[], size: number) {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+
+  return chunks;
+}
+
+function chunkTextByWords(text: string, maxLength: number) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const pages: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+
+    if (next.length > maxLength && current) {
+      pages.push(current);
+      current = word;
+      continue;
+    }
+
+    current = next;
+  }
+
+  if (current) {
+    pages.push(current);
+  }
+
+  return pages.length ? pages : [text];
+}
 
 function formatDate(date: string) {
   if (!date) {
@@ -56,12 +92,28 @@ function getBaseUrl() {
   return host ? `${protocol}://${host}` : "";
 }
 
+function getPrintMode(tipo?: string): PrintMode {
+  if (tipo === "cupons") {
+    return "coupons";
+  }
+
+  if (tipo === "carta") {
+    return "letter";
+  }
+
+  if (tipo === "pacote") {
+    return "package";
+  }
+
+  return "invite";
+}
+
 function cleanCoupons(coupons: GiftCoupon[] | undefined) {
   const cleaned = (coupons || []).filter(
     (coupon) => coupon.title.trim() || coupon.description.trim()
   );
 
-  return (cleaned.length ? cleaned : fallbackCoupons).slice(0, 8);
+  return (cleaned.length ? cleaned : fallbackCoupons).slice(0, 12);
 }
 
 export default async function PrintGiftPage({ params, searchParams }: PrintGiftPageProps) {
@@ -71,12 +123,7 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
     notFound();
   }
 
-  const mode =
-    searchParams?.tipo === "cupons"
-      ? "coupons"
-      : searchParams?.tipo === "pacote"
-        ? "package"
-        : "invite";
+  const mode = getPrintMode(searchParams?.tipo);
   const baseUrl = getBaseUrl();
   const giftUrl = `${baseUrl}/presente/${gift.slug}`;
   const qrUrl = await QRCode.toDataURL(giftUrl, {
@@ -91,10 +138,27 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
     gift.photos.find((photo) => photo.pathname === gift.coverPhotoPathname) ||
     gift.photos[0];
   const coupons = cleanCoupons(gift.coupons);
+  const couponPages = chunkItems(coupons, 4);
+  const letterMessage =
+    gift.message ||
+    "Escrevi esse presente para voce abrir com calma e lembrar o quanto voce e especial para mim.";
+  const letterPages = chunkTextByWords(letterMessage, 850);
 
   return (
     <main className="gift-print-shell">
       <PrintActions giftUrl={`/presente/${gift.slug}`} />
+
+      {mode === "package" ? (
+        <section className="gift-print-page gift-print-cover-page">
+          <div>
+            <p className="gift-print-eyebrow">Para entregar em maos</p>
+            <h1>Um presente para {gift.recipientName}</h1>
+            <p>
+              Abra com calma. Cada pagina aqui guarda um pedaco do carinho de {gift.creatorName}.
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       {mode === "invite" || mode === "package" ? (
         <section className="gift-print-page gift-print-invite">
@@ -127,27 +191,53 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
         </section>
       ) : null}
 
+      {mode === "letter" || mode === "package"
+        ? letterPages.map((letterPage, pageIndex) => {
+            const isLastLetterPage = pageIndex === letterPages.length - 1;
+
+            return (
+              <section className="gift-print-page gift-print-letter-page" key={`letter-${pageIndex}`}>
+                <div className="gift-print-letter-paper">
+                  <p className="gift-print-eyebrow">
+                    Carta para guardar
+                    {letterPages.length > 1 ? ` - parte ${pageIndex + 1} de ${letterPages.length}` : ""}
+                  </p>
+                  <h1>{pageIndex === 0 ? gift.recipientName : "Continuacao"}</h1>
+                  <p className="gift-print-letter-message">{letterPage}</p>
+                  {isLastLetterPage ? (
+                    <>
+                      <p className="gift-print-letter-signature">
+                        {gift.finalSignature || `Com amor, ${gift.creatorName}`}
+                      </p>
+                      <div className="gift-print-letter-footer">
+                        <div>
+                          <span>Abra tambem o presente digital</span>
+                          <p>Aponte a camera para o QR Code quando quiser viver tudo isso na tela.</p>
+                        </div>
+                        <div className="gift-print-letter-qr">
+                          <img src={qrUrl} alt="QR Code do presente" />
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+                <div className="gift-print-fold-mark">linha suave para dobrar a carta</div>
+              </section>
+            );
+          })
+        : null}
+
       {mode === "package" ? (
         <>
-          <section className="gift-print-page gift-print-cover-page">
-            <div>
-              <p className="gift-print-eyebrow">Para entregar em mãos</p>
-              <h1>Um presente para {gift.recipientName}</h1>
-              <p>
-                Abra com calma. Cada página aqui guarda um pedaço do carinho de {gift.creatorName}.
-              </p>
-            </div>
-          </section>
-
           <section className="gift-print-page gift-print-fold-card">
             <div className="gift-print-fold-half">
               <p className="gift-print-eyebrow">Dobre aqui</p>
               <h1>{gift.recipientName}</h1>
-              <p>Tem uma surpresa esperando por você.</p>
+              <p>Tem uma surpresa esperando por voce.</p>
             </div>
             <div className="gift-print-fold-half">
               <p>
-                Aponte a câmera para o QR Code do convite e abra quando puder viver este momento sem pressa.
+                Aponte a camera para o QR Code do convite e abra quando puder viver este momento sem pressa.
               </p>
               <strong>{gift.creatorName}</strong>
             </div>
@@ -164,33 +254,42 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
         </>
       ) : null}
 
-      {mode === "coupons" || mode === "package" ? (
-        <section className="gift-print-page gift-print-coupons">
-          <div className="gift-print-coupon-header">
-            <p className="gift-print-eyebrow">Vales para usar com carinho</p>
-            <h1>Cupons de amor</h1>
-            <p>
-              Para {gift.recipientName}, de {gift.creatorName}
-            </p>
-          </div>
+      {mode === "coupons" || mode === "package"
+        ? couponPages.map((pageCoupons, pageIndex) => (
+            <section className="gift-print-page gift-print-coupons" key={`coupons-${pageIndex}`}>
+              <div className="gift-print-coupon-header">
+                <p className="gift-print-eyebrow">Vales para usar com carinho</p>
+                <h1>Cupons de amor</h1>
+                <p>
+                  Para {gift.recipientName}, de {gift.creatorName}
+                </p>
+              </div>
 
-          <div className="gift-print-coupon-grid">
-            {coupons.map((coupon, index) => (
-              <article className="gift-print-coupon" key={`${coupon.title}-${index}`}>
-                <div>
-                  <span>Vale {String(index + 1).padStart(2, "0")}</span>
-                  <h2>{coupon.title}</h2>
-                  <p>{coupon.description}</p>
-                </div>
-                <div className="gift-print-coupon-foot">
-                  <span>Para destacar e usar quando quiser</span>
-                  <span>Presente digital</span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
+              <div className="gift-print-coupon-grid">
+                {pageCoupons.map((coupon, index) => {
+                  const couponNumber = pageIndex * 4 + index + 1;
+
+                  return (
+                    <article className="gift-print-coupon" key={`${coupon.title}-${couponNumber}`}>
+                      <div>
+                        <span>Vale {String(couponNumber).padStart(2, "0")}</span>
+                        <h2>{coupon.title}</h2>
+                        <p>{coupon.description}</p>
+                      </div>
+                      <div className="gift-print-coupon-foot">
+                        <span>Recorte e use quando quiser</span>
+                        <span>Presente digital</span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              <p className="gift-print-coupon-page-count">
+                Folha {pageIndex + 1} de {couponPages.length}
+              </p>
+            </section>
+          ))
+        : null}
     </main>
   );
 }

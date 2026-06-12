@@ -1627,7 +1627,7 @@ export function GiftBuilder({
                         <MessageCircleHeart size={13} aria-hidden="true" />
                         Ver reações
                       </Link>
-                      <div className="mt-2 grid grid-cols-3 gap-2">
+                      <div className="mt-2 grid grid-cols-2 gap-2">
                         <Link
                           href={`/presente/${gift.slug}/imprimir?tipo=convite`}
                           target="_blank"
@@ -1635,6 +1635,14 @@ export function GiftBuilder({
                         >
                           <QrCode size={13} aria-hidden="true" />
                           Convite
+                        </Link>
+                        <Link
+                          href={`/presente/${gift.slug}/imprimir?tipo=carta`}
+                          target="_blank"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10"
+                        >
+                          <BookOpen size={13} aria-hidden="true" />
+                          Carta
                         </Link>
                         <Link
                           href={`/presente/${gift.slug}/imprimir?tipo=cupons`}

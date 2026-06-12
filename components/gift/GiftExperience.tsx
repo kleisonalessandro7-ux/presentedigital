@@ -768,7 +768,7 @@ function AudioDock({
   );
 }
 
-type PrintMode = "invite" | "coupons";
+type PrintMode = "invite" | "coupons" | "letter";
 
 function PrintableGiftSheets({
   gift,
@@ -1073,7 +1073,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }
 
   function printSheet(mode: PrintMode) {
-    const type = mode === "coupons" ? "cupons" : "convite";
+    const type = mode === "coupons" ? "cupons" : mode === "letter" ? "carta" : "convite";
     window.open(`/presente/${gift.slug}/imprimir?tipo=${type}`, "_blank", "noopener,noreferrer");
   }
 
@@ -1495,6 +1495,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
                 }}
                 onPrintInvite={() => printSheet("invite")}
                 onPrintCoupons={() => printSheet("coupons")}
+                onPrintLetter={() => printSheet("letter")}
                 onPrintPackage={() => window.open(`/presente/${gift.slug}/imprimir?tipo=pacote`, "_blank", "noopener,noreferrer")}
                 onGoTo={(type) => {
                   const target = slides.findIndex((slide) => slide.type === type);
@@ -2604,6 +2605,7 @@ function EndingSlide({
   onOpenMusic,
   onPrintInvite,
   onPrintCoupons,
+  onPrintLetter,
   onPrintPackage,
   onGoTo,
   visual
@@ -2617,6 +2619,7 @@ function EndingSlide({
   onOpenMusic: () => void;
   onPrintInvite: () => void;
   onPrintCoupons: () => void;
+  onPrintLetter: () => void;
   onPrintPackage: () => void;
   onGoTo: (type: Slide["type"]) => void;
   visual: ThemeVisual;
@@ -2806,6 +2809,14 @@ function EndingSlide({
           >
             <Ticket size={17} aria-hidden="true" />
             Cupons
+          </button>
+          <button
+            type="button"
+            onClick={onPrintLetter}
+            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+          >
+            <BookOpen size={17} aria-hidden="true" />
+            Carta
           </button>
           <button
             type="button"

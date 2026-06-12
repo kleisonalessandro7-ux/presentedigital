@@ -447,11 +447,11 @@ button:disabled {
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 7mm;
+  gap: 8mm;
 }
 
 .gift-print-coupon {
-  min-height: 45mm;
+  min-height: 76mm;
   border: 1px dashed rgba(190, 24, 93, 0.55);
   border-radius: 6mm;
   padding: 7mm;
@@ -481,6 +481,17 @@ button:disabled {
   color: #6b2149;
   font-size: 10pt;
   line-height: 1.35;
+}
+
+.gift-print-coupon-page-count {
+  position: relative;
+  z-index: 1;
+  margin: 7mm 0 0;
+  color: #be185d;
+  font-size: 9pt;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .gift-print-coupon-foot {
@@ -579,6 +590,103 @@ button:disabled {
   border-radius: 4mm;
   background: rgba(255, 255, 255, 0.74);
   box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+}
+
+.gift-print-letter-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-print-letter-paper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 238mm;
+  border: 1px solid rgba(190, 24, 93, 0.26);
+  border-radius: 8mm;
+  padding: 17mm;
+  background:
+    linear-gradient(rgba(190, 24, 93, 0.06) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.82);
+  background-size: 100% 10mm;
+  box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+}
+
+.gift-print-letter-paper h1 {
+  margin: 0;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 42pt;
+  line-height: 1;
+}
+
+.gift-print-letter-message {
+  margin: 12mm 0 0;
+  white-space: pre-wrap;
+  color: #5f1a41;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 15pt;
+  line-height: 1.5;
+}
+
+.gift-print-letter-signature {
+  margin: 12mm 0 0;
+  color: #be185d;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 24pt;
+  text-align: right;
+}
+
+.gift-print-letter-footer {
+  display: grid;
+  grid-template-columns: 1fr 40mm;
+  align-items: center;
+  gap: 8mm;
+  margin-top: 12mm;
+  border-top: 1px solid rgba(190, 24, 93, 0.18);
+  padding-top: 8mm;
+}
+
+.gift-print-letter-footer span {
+  color: #be185d;
+  font-size: 9pt;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.gift-print-letter-footer p {
+  margin: 2mm 0 0;
+  color: #7e1648;
+  font-size: 11pt;
+  line-height: 1.35;
+}
+
+.gift-print-letter-qr {
+  display: flex;
+  justify-content: center;
+  border-radius: 4mm;
+  background: #ffffff;
+  padding: 3mm;
+}
+
+.gift-print-letter-qr img {
+  width: 34mm;
+  height: 34mm;
+}
+
+.gift-print-fold-mark {
+  position: absolute;
+  left: 18mm;
+  right: 18mm;
+  top: 50%;
+  border-top: 1px dashed rgba(190, 24, 93, 0.22);
+  color: rgba(126, 22, 72, 0.55);
+  font-size: 8pt;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateY(-50%);
 }
 
 .gift-experience .mobile-safe-slide {
@@ -695,6 +803,35 @@ button:disabled {
     min-height: 10rem;
     border-radius: 1rem;
     padding: 1rem;
+  }
+
+  .gift-print-letter-paper {
+    min-height: auto;
+    border-radius: 1rem;
+    padding: 1.25rem;
+  }
+
+  .gift-print-letter-paper h1 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .gift-print-letter-message {
+    font-size: 1.1rem;
+    line-height: 1.65;
+  }
+
+  .gift-print-letter-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .gift-print-letter-qr img {
+    width: 54vw;
+    max-width: 13rem;
+    height: auto;
+  }
+
+  .gift-print-fold-mark {
+    display: none;
   }
 }
 
@@ -955,11 +1092,30 @@ button:disabled {
 
   .gift-print-page {
     width: 210mm;
+    height: 297mm;
     min-height: 297mm;
     margin: 0;
+    overflow: hidden;
     border-radius: 0;
     box-shadow: none;
+    break-after: page;
+    break-inside: avoid;
     page-break-after: always;
+  }
+
+  .gift-print-coupon-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8mm;
+  }
+
+  .gift-print-coupon {
+    min-height: 76mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .gift-print-letter-paper {
+    min-height: 238mm;
   }
 }
 

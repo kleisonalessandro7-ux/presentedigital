@@ -37,7 +37,6 @@ import {
   CSSProperties,
   RefObject,
   type KeyboardEvent as ReactKeyboardEvent,
-  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
@@ -1921,6 +1920,7 @@ function ConstellationSlide({
   const [selected, setSelected] = useState(0);
   const [tapCount, setTapCount] = useState(0);
   const [tripleSecretOpen, setTripleSecretOpen] = useState(false);
+  const secretTapRef = useRef<{ x: number; y: number } | null>(null);
   const initials = `${gift.creatorName[0] || ""}${gift.recipientName[0] || ""}`.toUpperCase();
   const safeHiddenMessages = hiddenMessages.length
     ? hiddenMessages
@@ -1953,11 +1953,41 @@ function ConstellationSlide({
     event.stopPropagation();
   }
 
-  function stopSecretKeyboard(event: ReactKeyboardEvent<HTMLButtonElement>) {
+  function startSecretTap(event: ReactPointerEvent<HTMLButtonElement>) {
     event.stopPropagation();
+    secretTapRef.current = {
+      x: event.clientX,
+      y: event.clientY
+    };
   }
 
-  function handleSecretClick(event: ReactMouseEvent<HTMLButtonElement>) {
+  function finishSecretTap(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    const start = secretTapRef.current;
+    secretTapRef.current = null;
+
+    if (!start) {
+      return;
+    }
+
+    const movement = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+
+    if (movement <= 18) {
+      revealTripleSecret();
+    }
+  }
+
+  function cancelSecretTap() {
+    secretTapRef.current = null;
+  }
+
+  function handleSecretKeyboard(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
     event.stopPropagation();
     revealTripleSecret();
   }
@@ -2070,10 +2100,15 @@ function ConstellationSlide({
         </motion.p>
         <button
           type="button"
-          onPointerDown={stopSecretGesture}
-          onPointerUp={stopSecretGesture}
-          onKeyDown={stopSecretKeyboard}
-          onClick={handleSecretClick}
+          data-no-slide-drag="true"
+          onPointerDown={startSecretTap}
+          onPointerUp={finishSecretTap}
+          onPointerCancel={cancelSecretTap}
+          onKeyDown={handleSecretKeyboard}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
           className="mt-4 touch-manipulation select-none rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-pink-100 backdrop-blur-xl hover:bg-white/16"
         >
           Toque 3 vezes para revelar
@@ -2501,27 +2536,27 @@ function AlbumSlide({ gift, visual }: { gift: GiftData; visual: ThemeVisual }) {
                 key={current.pathname}
                 src={current.url}
                 alt={current.caption || "Foto do álbum"}
-                className="mx-auto max-h-[56vh] w-auto max-w-full rounded-xl object-contain"
+                className="mx-auto max-h-[46svh] w-auto max-w-full rounded-xl object-contain sm:max-h-[56vh]"
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
               />
-              <div className="mt-3 flex items-center justify-between gap-3">
+              <div className="mt-4 flex items-start justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => move(-1)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/10"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/10"
                   aria-label="Foto anterior"
                   title="Foto anterior"
                 >
                   <ChevronLeft size={19} aria-hidden="true" />
                 </button>
-                <p className={`min-w-0 flex-1 truncate text-center text-sm font-semibold ${visual.muted}`}>
+                <p className={`min-w-0 flex-1 whitespace-pre-wrap break-words text-center text-sm font-semibold leading-6 ${visual.muted}`}>
                   {current.caption || `Memória ${selected + 1}`}
                 </p>
                 <button
                   type="button"
                   onClick={() => move(1)}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/10"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/10"
                   aria-label="Próxima foto"
                   title="Próxima foto"
                 >

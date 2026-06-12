@@ -14,10 +14,12 @@ type PrintGiftPageProps = {
   };
   searchParams?: {
     tipo?: string;
+    modelo?: string;
   };
 };
 
-type PrintMode = "invite" | "coupons" | "letter" | "package";
+type PrintMode = "invite" | "coupons" | "letter" | "package" | "qr";
+type LetterModel = "clean" | "vintage" | "qr" | "fold";
 
 const fallbackCoupons: GiftCoupon[] = [
   {
@@ -93,6 +95,10 @@ function getBaseUrl() {
 }
 
 function getPrintMode(tipo?: string): PrintMode {
+  if (tipo === "qr") {
+    return "qr";
+  }
+
   if (tipo === "cupons") {
     return "coupons";
   }
@@ -106,6 +112,22 @@ function getPrintMode(tipo?: string): PrintMode {
   }
 
   return "invite";
+}
+
+function getLetterModel(modelo?: string): LetterModel {
+  if (modelo === "vintage") {
+    return "vintage";
+  }
+
+  if (modelo === "qr") {
+    return "qr";
+  }
+
+  if (modelo === "dobravel" || modelo === "fold") {
+    return "fold";
+  }
+
+  return "clean";
 }
 
 function cleanCoupons(coupons: GiftCoupon[] | undefined) {
@@ -124,6 +146,7 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
   }
 
   const mode = getPrintMode(searchParams?.tipo);
+  const letterModel = getLetterModel(searchParams?.modelo);
   const baseUrl = getBaseUrl();
   const giftUrl = `${baseUrl}/presente/${gift.slug}`;
   const qrUrl = await QRCode.toDataURL(giftUrl, {
@@ -191,12 +214,32 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
         </section>
       ) : null}
 
+      {mode === "qr" || mode === "package" ? (
+        <section className="gift-print-page gift-print-qr-page">
+          <div className="gift-print-qr-hero">
+            <p className="gift-print-eyebrow">Abra quando estiver com calma</p>
+            <h1>Uma surpresa para {gift.recipientName}</h1>
+            <p>
+              Aponte a camera para este QR Code e viva o presente digital feito por {gift.creatorName}.
+            </p>
+            <div className="gift-print-large-qr">
+              <img src={qrUrl} alt="QR Code grande do presente" />
+            </div>
+            <strong>{giftUrl}</strong>
+          </div>
+          {cover ? <img className="gift-print-qr-watermark" src={cover.url} alt="" /> : null}
+        </section>
+      ) : null}
+
       {mode === "letter" || mode === "package"
         ? letterPages.map((letterPage, pageIndex) => {
             const isLastLetterPage = pageIndex === letterPages.length - 1;
 
             return (
-              <section className="gift-print-page gift-print-letter-page" key={`letter-${pageIndex}`}>
+              <section
+                className={`gift-print-page gift-print-letter-page gift-print-letter-model-${letterModel}`}
+                key={`letter-${pageIndex}`}
+              >
                 <div className="gift-print-letter-paper">
                   <p className="gift-print-eyebrow">
                     Carta para guardar
@@ -209,7 +252,11 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
                       <p className="gift-print-letter-signature">
                         {gift.finalSignature || `Com amor, ${gift.creatorName}`}
                       </p>
-                      <div className="gift-print-letter-footer">
+                      <div
+                        className={`gift-print-letter-footer ${
+                          letterModel === "qr" ? "gift-print-letter-footer-large" : ""
+                        }`}
+                      >
                         <div>
                           <span>Abra tambem o presente digital</span>
                           <p>Aponte a camera para o QR Code quando quiser viver tudo isso na tela.</p>
@@ -221,7 +268,9 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
                     </>
                   ) : null}
                 </div>
-                <div className="gift-print-fold-mark">linha suave para dobrar a carta</div>
+                {letterModel === "fold" ? (
+                  <div className="gift-print-fold-mark">linha suave para dobrar a carta</div>
+                ) : null}
               </section>
             );
           })
@@ -275,6 +324,9 @@ export default async function PrintGiftPage({ params, searchParams }: PrintGiftP
                         <span>Vale {String(couponNumber).padStart(2, "0")}</span>
                         <h2>{coupon.title}</h2>
                         <p>{coupon.description}</p>
+                        <div className="gift-print-coupon-used">
+                          Usado em: ____ / ____ / ____
+                        </div>
                       </div>
                       <div className="gift-print-coupon-foot">
                         <span>Recorte e use quando quiser</span>

@@ -13,6 +13,7 @@ import {
   Clock,
   Copy,
   CopyPlus,
+  Download,
   Eye,
   Gift,
   Heart,
@@ -44,6 +45,7 @@ import {
   X
 } from "lucide-react";
 import Link from "next/link";
+import QRCode from "qrcode";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { giftThemes } from "@/lib/themes";
 import { getMediaEmbedUrl } from "@/lib/media";
@@ -940,6 +942,7 @@ export function GiftBuilder({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [deliveryGift, setDeliveryGift] = useState<DeliveryGift | null>(null);
+  const [deliveryQrUrl, setDeliveryQrUrl] = useState("");
   const mediaPreviewUrl = useMemo(() => getMediaEmbedUrl(draft.mediaUrl), [draft.mediaUrl]);
 
   useEffect(() => {
@@ -975,6 +978,38 @@ export function GiftBuilder({
       slug: `${ensureSlug(current.recipientName || "presente")}-${slugSuffix}`
     }));
   }, [draft.recipientName, draft.photos.length, draft.audio, draft.videos.length, editingSlug, slugSuffix]);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!deliveryGift) {
+      setDeliveryQrUrl("");
+      return;
+    }
+
+    QRCode.toDataURL(`${window.location.origin}${deliveryGift.url}`, {
+      margin: 1,
+      width: 360,
+      color: {
+        dark: "#4c102f",
+        light: "#ffffff"
+      }
+    })
+      .then((dataUrl) => {
+        if (active) {
+          setDeliveryQrUrl(dataUrl);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setDeliveryQrUrl("");
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [deliveryGift]);
 
   const canAdvance = stepComplete(step, draft);
   const progress = useMemo(() => ((step + 1) / steps.length) * 100, [step]);
@@ -1430,6 +1465,34 @@ export function GiftBuilder({
     );
   }
 
+  function downloadDeliveryQr() {
+    if (!deliveryGift || !deliveryQrUrl) {
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = deliveryQrUrl;
+    link.download = `qr-${deliveryGift.slug}.png`;
+    link.click();
+  }
+
+  function downloadGiftBackup() {
+    const exportedGift = {
+      exportedAt: new Date().toISOString(),
+      delivery: deliveryGift,
+      draft
+    };
+    const blob = new Blob([JSON.stringify(exportedGift, null, 2)], {
+      type: "application/json;charset=utf-8"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `backup-${deliveryGift?.slug || draft.slug}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   const requiredReady = steps.slice(0, 4).every((_, index) => stepComplete(index, draft));
   const checklist = [
     { label: "Nomes", done: Boolean(draft.creatorName && draft.recipientName) },
@@ -1448,6 +1511,52 @@ export function GiftBuilder({
       )
     }
   ];
+  const reviewItems = useMemo(
+    () => [
+      {
+        label: "Fotos e capa",
+        done: draft.photos.length > 0,
+        detail: draft.photos.length
+          ? `${draft.photos.length} foto${draft.photos.length === 1 ? "" : "s"} pronta${draft.photos.length === 1 ? "" : "s"}.`
+          : "Adicione pelo menos uma foto para a experiencia ficar bonita."
+      },
+      {
+        label: "Carta principal",
+        done: draft.message.trim().length >= 40,
+        detail:
+          draft.message.trim().length >= 40
+            ? "Mensagem com tamanho bom para emocionar."
+            : "Escreva um pouco mais antes de enviar."
+      },
+      {
+        label: "Trilha sonora",
+        done: Boolean(draft.audio || draft.mediaUrl),
+        detail: draft.audio
+          ? "MP3 enviado. Esse e o modo mais confiavel no celular."
+          : draft.mediaUrl
+            ? "Link externo pronto. Spotify/YouTube podem pedir toque da pessoa."
+            : "Sem som. Se quiser musica desde o comeco, envie um MP3."
+      },
+      {
+        label: "Videos",
+        done: draft.videos.length <= 3,
+        detail: draft.videos.length
+          ? "Teste os videos no preview pelo celular antes de mandar."
+          : "Sem videos curtos adicionados."
+      },
+      {
+        label: "Cupons",
+        done: draft.coupons.some((coupon) => coupon.title.trim() || coupon.description.trim()),
+        detail: "Os cupons ficam clicaveis na tela e prontos para imprimir."
+      },
+      {
+        label: "Entrega em papel",
+        done: Boolean(draft.recipientName && draft.creatorName),
+        detail: "Depois de salvar, use QR grande, carta e pacote completo no painel de entrega."
+      }
+    ],
+    [draft]
+  );
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
@@ -1512,65 +1621,142 @@ export function GiftBuilder({
 
         {deliveryGift ? (
           <section className="rounded-2xl border border-pink-200/20 bg-gradient-to-br from-slate-950/80 via-pink-950/35 to-violet-950/50 p-5 shadow-violet backdrop-blur-xl">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm font-bold uppercase text-pink-200">Entrega do presente</p>
-                <h2 className="mt-2 font-display text-3xl leading-tight text-white">
-                  Presente de {deliveryGift.recipientName} pronto.
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                  Imprima a carta, os cupons ou o pacote completo agora, sem precisar procurar na lista.
+            <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
+              <div className="rounded-2xl border border-white/10 bg-white/90 p-4 text-center text-slate-950">
+                {deliveryQrUrl ? (
+                  <img
+                    src={deliveryQrUrl}
+                    alt="QR Code do presente"
+                    className="mx-auto h-44 w-44 rounded-xl bg-white"
+                  />
+                ) : (
+                  <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-slate-100">
+                    <QrCode size={42} aria-hidden="true" />
+                  </div>
+                )}
+                <p className="mt-3 text-xs font-black uppercase text-pink-700">
+                  QR pronto para entregar
+                </p>
+                <p className="mt-1 break-all text-[11px] leading-4 text-slate-600">
+                  {deliveryGift.url}
                 </p>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[460px]">
-                <Link
-                  href={deliveryGift.url}
-                  target="_blank"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-glow hover:bg-pink-100"
-                >
-                  <Eye size={16} aria-hidden="true" />
-                  Abrir presente
-                </Link>
-                <button
-                  type="button"
-                  onClick={copyDeliveryLink}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <Copy size={16} aria-hidden="true" />
-                  Copiar link
-                </button>
-                <button
-                  type="button"
-                  onClick={sendDeliveryWhatsApp}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <MessageCircleHeart size={16} aria-hidden="true" />
-                  WhatsApp
-                </button>
-                <Link
-                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=carta`}
-                  target="_blank"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <BookOpen size={16} aria-hidden="true" />
-                  Imprimir carta
-                </Link>
-                <Link
-                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=cupons`}
-                  target="_blank"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <Ticket size={16} aria-hidden="true" />
-                  Imprimir cupons
-                </Link>
-                <Link
-                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=pacote`}
-                  target="_blank"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-pink-200/30 bg-pink-500/18 px-4 text-sm font-bold text-pink-100 hover:bg-pink-500/25"
-                >
-                  <ClipboardCheck size={16} aria-hidden="true" />
-                  Pacote completo
-                </Link>
+
+              <div>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-sm font-bold uppercase text-pink-200">Entrega do presente</p>
+                    <h2 className="mt-2 font-display text-3xl leading-tight text-white">
+                      Presente de {deliveryGift.recipientName} pronto.
+                    </h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+                      O link, o QR Code, a carta e o pacote para entrega fisica ja estao aqui.
+                    </p>
+                  </div>
+                  <span className="inline-flex h-9 items-center justify-center rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 text-xs font-black uppercase text-emerald-100">
+                    Pronto para enviar
+                  </span>
+                </div>
+
+                <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  <Link
+                    href={deliveryGift.url}
+                    target="_blank"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-glow hover:bg-pink-100"
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                    Testar presente
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={copyDeliveryLink}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                  >
+                    <Copy size={16} aria-hidden="true" />
+                    Copiar link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={sendDeliveryWhatsApp}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                  >
+                    <MessageCircleHeart size={16} aria-hidden="true" />
+                    WhatsApp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadDeliveryQr}
+                    disabled={!deliveryQrUrl}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15 disabled:opacity-50"
+                  >
+                    <Download size={16} aria-hidden="true" />
+                    Baixar QR
+                  </button>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-black/16 p-4">
+                  <p className="mb-3 text-xs font-black uppercase text-pink-100">
+                    Modo entrega fisica
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=qr`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15"
+                    >
+                      <QrCode size={15} aria-hidden="true" />
+                      QR grande
+                    </Link>
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=carta&modelo=limpa`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15"
+                    >
+                      <BookOpen size={15} aria-hidden="true" />
+                      Carta limpa
+                    </Link>
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=carta&modelo=vintage`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15"
+                    >
+                      <BookOpen size={15} aria-hidden="true" />
+                      Carta vintage
+                    </Link>
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=carta&modelo=dobravel`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15"
+                    >
+                      <MoveDown size={15} aria-hidden="true" />
+                      Carta dobravel
+                    </Link>
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=cupons`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15"
+                    >
+                      <Ticket size={15} aria-hidden="true" />
+                      Cupons
+                    </Link>
+                    <Link
+                      href={`/presente/${deliveryGift.slug}/imprimir?tipo=pacote`}
+                      target="_blank"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-pink-200/30 bg-pink-500/18 px-3 text-xs font-bold text-pink-100 hover:bg-pink-500/25"
+                    >
+                      <ClipboardCheck size={15} aria-hidden="true" />
+                      Pacote completo
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={downloadGiftBackup}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/15 sm:col-span-2"
+                    >
+                      <Download size={15} aria-hidden="true" />
+                      Baixar backup JSON
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1628,6 +1814,35 @@ export function GiftBuilder({
                   {item.label}
                 </div>
               ))}
+            </div>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <p className="mb-3 text-xs font-black uppercase text-slate-400">
+                Revisao automatica
+              </p>
+              <div className="space-y-2">
+                {reviewItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className={`rounded-lg border px-3 py-2 ${
+                      item.done
+                        ? "border-emerald-300/15 bg-emerald-400/8"
+                        : "border-amber-300/20 bg-amber-400/10"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs font-black uppercase">
+                      <Check
+                        size={13}
+                        className={item.done ? "text-emerald-200" : "text-amber-200"}
+                        aria-hidden="true"
+                      />
+                      <span className={item.done ? "text-emerald-100" : "text-amber-100"}>
+                        {item.label}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -1745,6 +1960,14 @@ export function GiftBuilder({
                         >
                           <QrCode size={13} aria-hidden="true" />
                           Convite
+                        </Link>
+                        <Link
+                          href={`/presente/${gift.slug}/imprimir?tipo=qr`}
+                          target="_blank"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10"
+                        >
+                          <QrCode size={13} aria-hidden="true" />
+                          QR grande
                         </Link>
                         <Link
                           href={`/presente/${gift.slug}/imprimir?tipo=carta`}

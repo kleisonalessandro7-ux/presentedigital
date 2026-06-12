@@ -495,6 +495,82 @@ button:disabled {
   word-break: break-all;
 }
 
+.gift-print-qr-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(236, 72, 153, 0.2), transparent 45mm),
+    radial-gradient(circle at 86% 80%, rgba(139, 92, 246, 0.16), transparent 48mm),
+    #fff8fb;
+}
+
+.gift-print-qr-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 155mm;
+  min-height: 238mm;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(190, 24, 93, 0.22);
+  border-radius: 8mm;
+  padding: 16mm;
+  background: rgba(255, 255, 255, 0.86);
+  text-align: center;
+  box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.1);
+}
+
+.gift-print-qr-hero h1 {
+  max-width: 132mm;
+  margin: 0;
+  color: #4c102f;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 42pt;
+  line-height: 1;
+}
+
+.gift-print-qr-hero p {
+  max-width: 118mm;
+  margin: 8mm 0 0;
+  color: #7e1648;
+  font-size: 14pt;
+  line-height: 1.45;
+}
+
+.gift-print-large-qr {
+  margin: 13mm 0 8mm;
+  border: 1px solid rgba(126, 22, 72, 0.12);
+  border-radius: 6mm;
+  background: #ffffff;
+  padding: 5mm;
+}
+
+.gift-print-large-qr img {
+  width: 92mm;
+  height: 92mm;
+}
+
+.gift-print-qr-hero strong {
+  max-width: 120mm;
+  color: #7e1648;
+  font-size: 8pt;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.gift-print-qr-watermark {
+  position: absolute;
+  inset: auto 16mm 16mm auto;
+  width: 42mm;
+  height: 42mm;
+  border-radius: 6mm;
+  object-fit: cover;
+  opacity: 0.18;
+}
+
 .gift-print-coupon-header {
   position: relative;
   z-index: 1;
@@ -521,6 +597,7 @@ button:disabled {
 }
 
 .gift-print-coupon {
+  position: relative;
   min-height: 76mm;
   border: 1px dashed rgba(190, 24, 93, 0.55);
   border-radius: 6mm;
@@ -529,6 +606,28 @@ button:disabled {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.gift-print-coupon::before,
+.gift-print-coupon::after {
+  content: "";
+  position: absolute;
+  width: 12mm;
+  height: 12mm;
+  border: 1px dashed rgba(190, 24, 93, 0.42);
+  border-radius: 999px;
+}
+
+.gift-print-coupon::before {
+  right: -6mm;
+  top: -6mm;
+  background: #fff8fb;
+}
+
+.gift-print-coupon::after {
+  left: -6mm;
+  bottom: -6mm;
+  background: #fff8fb;
 }
 
 .gift-print-coupon span {
@@ -551,6 +650,16 @@ button:disabled {
   color: #6b2149;
   font-size: 10pt;
   line-height: 1.35;
+}
+
+.gift-print-coupon-used {
+  margin-top: 5mm;
+  border-top: 1px solid rgba(190, 24, 93, 0.14);
+  padding-top: 3mm;
+  color: #7e1648;
+  font-size: 8pt;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .gift-print-coupon-page-count {
@@ -669,6 +778,33 @@ button:disabled {
   background: #fffdfd;
 }
 
+.gift-print-letter-model-vintage {
+  background:
+    linear-gradient(rgba(126, 22, 72, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 16% 14%, rgba(236, 72, 153, 0.12), transparent 44mm),
+    #fff7ed;
+  background-size: 100% 9mm, auto, auto;
+}
+
+.gift-print-letter-model-vintage .gift-print-letter-paper {
+  border-color: rgba(120, 53, 15, 0.22);
+  background: rgba(255, 251, 235, 0.94);
+}
+
+.gift-print-letter-model-vintage .gift-print-letter-message,
+.gift-print-letter-model-vintage .gift-print-letter-paper h1 {
+  color: #5f2b17;
+}
+
+.gift-print-letter-model-qr .gift-print-letter-paper {
+  min-height: 232mm;
+}
+
+.gift-print-letter-model-fold .gift-print-letter-paper {
+  min-height: 226mm;
+  border-style: dashed;
+}
+
 .gift-print-letter-paper {
   position: relative;
   z-index: 1;
@@ -716,6 +852,10 @@ button:disabled {
   padding-top: 7mm;
 }
 
+.gift-print-letter-footer-large {
+  grid-template-columns: 1fr 58mm;
+}
+
 .gift-print-letter-footer span {
   color: #be185d;
   font-size: 9pt;
@@ -742,6 +882,11 @@ button:disabled {
 .gift-print-letter-qr img {
   width: 32mm;
   height: 32mm;
+}
+
+.gift-print-letter-footer-large .gift-print-letter-qr img {
+  width: 50mm;
+  height: 50mm;
 }
 
 .gift-print-fold-mark {
@@ -861,6 +1006,31 @@ button:disabled {
     width: 72vw;
     max-width: 15rem;
     height: auto;
+  }
+
+  .gift-print-qr-hero {
+    width: 100%;
+    min-height: auto;
+    border-radius: 1rem;
+    padding: 1.25rem;
+  }
+
+  .gift-print-qr-hero h1 {
+    font-size: clamp(2.4rem, 12vw, 3.8rem);
+  }
+
+  .gift-print-qr-hero p {
+    font-size: 1rem;
+  }
+
+  .gift-print-large-qr img {
+    width: 66vw;
+    max-width: 16rem;
+    height: auto;
+  }
+
+  .gift-print-qr-watermark {
+    display: none;
   }
 
   .gift-print-coupon-grid {

@@ -109,8 +109,8 @@ Abra `http://localhost:3000/admin`, entre com a senha e preencha o formulário e
 3. Preencha nomes, datas, linha do tempo, fotos, vídeos, mensagens, cupons, música, voz, tema e extras.
 4. Use `Pré-visualizar como destinatário` para ver a experiência antes de salvar.
 5. Clique em `Gerar presente` ou `Salvar presente`.
-6. Use o painel `Entrega do presente` que aparece depois de salvar para abrir, copiar, enviar no WhatsApp ou imprimir.
-7. Se quiser entregar em papel, abra `/presente/[slug]/imprimir?tipo=convite` para o QR Code, `/presente/[slug]/imprimir?tipo=carta` para a carta com QR Code, `/presente/[slug]/imprimir?tipo=cupons` para os cupons ou `/presente/[slug]/imprimir?tipo=pacote` para imprimir tudo junto.
+6. Use o painel `Entrega do presente` que aparece depois de salvar para abrir, testar, copiar, enviar no WhatsApp, baixar o QR, baixar backup JSON ou imprimir.
+7. Se quiser entregar em papel, use `/presente/[slug]/imprimir?tipo=qr` para a folha com QR grande, `/presente/[slug]/imprimir?tipo=convite` para o convite, `/presente/[slug]/imprimir?tipo=carta&modelo=limpa`, `modelo=vintage`, `modelo=qr` ou `modelo=dobravel` para cartas diferentes, `/presente/[slug]/imprimir?tipo=cupons` para os cupons ou `/presente/[slug]/imprimir?tipo=pacote` para imprimir tudo junto.
 8. Envie o link gerado em `/presente/[slug]`.
 
 ## Armazenamento

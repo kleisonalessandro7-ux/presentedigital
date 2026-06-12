@@ -768,7 +768,7 @@ function AudioDock({
   );
 }
 
-type PrintMode = "invite" | "coupons" | "letter";
+type PrintMode = "invite" | "coupons" | "letter" | "qr";
 
 function PrintableGiftSheets({
   gift,
@@ -1096,7 +1096,8 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   }
 
   function printSheet(mode: PrintMode) {
-    const type = mode === "coupons" ? "cupons" : mode === "letter" ? "carta" : "convite";
+    const type =
+      mode === "coupons" ? "cupons" : mode === "letter" ? "carta" : mode === "qr" ? "qr" : "convite";
     window.open(`/presente/${gift.slug}/imprimir?tipo=${type}`, "_blank", "noopener,noreferrer");
   }
 
@@ -1551,6 +1552,7 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
                   }
                 }}
                 onPrintInvite={() => printSheet("invite")}
+                onPrintQr={() => printSheet("qr")}
                 onPrintCoupons={() => printSheet("coupons")}
                 onPrintLetter={() => printSheet("letter")}
                 onPrintPackage={() => window.open(`/presente/${gift.slug}/imprimir?tipo=pacote`, "_blank", "noopener,noreferrer")}
@@ -1978,7 +1980,6 @@ function ConstellationSlide({
   const [selected, setSelected] = useState(0);
   const [tapCount, setTapCount] = useState(0);
   const [tripleSecretOpen, setTripleSecretOpen] = useState(false);
-  const secretTapRef = useRef<{ x: number; y: number } | null>(null);
   const initials = `${gift.creatorName[0] || ""}${gift.recipientName[0] || ""}`.toUpperCase();
   const safeHiddenMessages = hiddenMessages.length
     ? hiddenMessages
@@ -2009,35 +2010,6 @@ function ConstellationSlide({
 
   function stopSecretGesture(event: ReactPointerEvent<HTMLButtonElement>) {
     event.stopPropagation();
-  }
-
-  function startSecretTap(event: ReactPointerEvent<HTMLButtonElement>) {
-    event.stopPropagation();
-    secretTapRef.current = {
-      x: event.clientX,
-      y: event.clientY
-    };
-  }
-
-  function finishSecretTap(event: ReactPointerEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-    const start = secretTapRef.current;
-    secretTapRef.current = null;
-
-    if (!start) {
-      return;
-    }
-
-    const movement = Math.hypot(event.clientX - start.x, event.clientY - start.y);
-
-    if (movement <= 18) {
-      revealTripleSecret();
-    }
-  }
-
-  function cancelSecretTap() {
-    secretTapRef.current = null;
   }
 
   function handleSecretKeyboard(event: ReactKeyboardEvent<HTMLButtonElement>) {
@@ -2089,6 +2061,13 @@ function ConstellationSlide({
           />
         ))}
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
+          <path
+            d="M50 78 C24 58 18 42 28 30 C37 19 48 28 50 37 C52 28 63 19 72 30 C82 42 76 58 50 78Z"
+            fill="none"
+            stroke="rgba(255,255,255,0.22)"
+            strokeDasharray="1.2 1.8"
+            strokeWidth="0.45"
+          />
           <polyline
             points={stars.slice(0, 9).map((star) => `${star.x},${star.y}`).join(" ")}
             fill="none"
@@ -2140,6 +2119,15 @@ function ConstellationSlide({
         <div className="absolute inset-0 flex items-center justify-center">
           <p className="font-display text-6xl text-white/10 sm:text-9xl">{initials}</p>
         </div>
+        {tripleSecretOpen ? (
+          <motion.span
+            className="pointer-events-none absolute h-1 w-36 rounded-full bg-gradient-to-r from-transparent via-pink-100 to-transparent shadow-glow"
+            style={{ left: "-18%", top: "24%", rotate: "-18deg" }}
+            initial={{ x: 0, opacity: 0 }}
+            animate={{ x: "150vw", opacity: [0, 1, 0] }}
+            transition={{ duration: 1.25, ease: "easeOut" }}
+          />
+        ) : null}
       </div>
       <div>
         <p className={`mb-4 text-sm font-bold uppercase ${visual.accent}`}>
@@ -2159,13 +2147,13 @@ function ConstellationSlide({
         <button
           type="button"
           data-no-slide-drag="true"
-          onPointerDown={startSecretTap}
-          onPointerUp={finishSecretTap}
-          onPointerCancel={cancelSecretTap}
+          onPointerDown={stopSecretGesture}
+          onPointerUp={stopSecretGesture}
           onKeyDown={handleSecretKeyboard}
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
+            revealTripleSecret();
           }}
           className="mt-4 touch-manipulation select-none rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-bold text-pink-100 backdrop-blur-xl hover:bg-white/16"
         >
@@ -2661,6 +2649,7 @@ function EndingSlide({
   onReplay,
   onOpenMusic,
   onPrintInvite,
+  onPrintQr,
   onPrintCoupons,
   onPrintLetter,
   onPrintPackage,
@@ -2675,6 +2664,7 @@ function EndingSlide({
   onReplay: () => void;
   onOpenMusic: () => void;
   onPrintInvite: () => void;
+  onPrintQr: () => void;
   onPrintCoupons: () => void;
   onPrintLetter: () => void;
   onPrintPackage: () => void;
@@ -2861,6 +2851,14 @@ function EndingSlide({
           </button>
           <button
             type="button"
+            onClick={onPrintQr}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
+          >
+            <QrCode size={17} aria-hidden="true" />
+            QR impresso
+          </button>
+          <button
+            type="button"
             onClick={onPrintInvite}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
           >
@@ -2985,6 +2983,11 @@ function EndingSlide({
           {reactionStatus === "error" ? (
             <p className="mt-2 text-sm font-semibold text-pink-100">
               Não consegui enviar agora. Tente novamente em instantes.
+            </p>
+          ) : null}
+          {reactionStatus === "sent" ? (
+            <p className="mt-2 rounded-lg border border-pink-200/20 bg-pink-500/12 px-3 py-2 text-sm font-semibold leading-6 text-pink-100">
+              Sua resposta foi guardada. Agora esse presente também tem um pedacinho seu.
             </p>
           ) : null}
         </div>

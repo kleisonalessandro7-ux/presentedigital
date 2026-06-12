@@ -95,6 +95,76 @@ button:disabled {
   mix-blend-mode: overlay;
 }
 
+.starry-sky-layer {
+  opacity: 0.92;
+  mix-blend-mode: screen;
+}
+
+.starry-sky-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1), transparent 18rem),
+    radial-gradient(circle at 18% 72%, rgba(236, 72, 153, 0.12), transparent 22rem),
+    radial-gradient(circle at 80% 68%, rgba(139, 92, 246, 0.12), transparent 24rem);
+}
+
+.sky-star {
+  position: absolute;
+  width: var(--star-size);
+  height: var(--star-size);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.68);
+  opacity: var(--star-opacity);
+  animation: starTwinkle var(--star-duration) ease-in-out infinite;
+  animation-delay: var(--star-delay);
+}
+
+.sky-shooting-star {
+  position: absolute;
+  width: var(--shooting-width);
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), rgba(244, 114, 182, 0.55), transparent);
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.72));
+  opacity: 0;
+  transform: rotate(-16deg);
+  animation: shootingStar var(--shooting-duration) ease-in-out infinite;
+  animation-delay: var(--shooting-delay);
+}
+
+@keyframes starTwinkle {
+  0%,
+  100% {
+    opacity: calc(var(--star-opacity) * 0.55);
+    transform: scale(0.82);
+  }
+  50% {
+    opacity: var(--star-opacity);
+    transform: scale(1.18);
+  }
+}
+
+@keyframes shootingStar {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(-16deg);
+  }
+  12% {
+    opacity: 0.92;
+  }
+  36% {
+    opacity: 0;
+    transform: translate3d(135vw, 34vh, 0) rotate(-16deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(135vw, 34vh, 0) rotate(-16deg);
+  }
+}
+
 .heartbeat-line {
   position: absolute;
   left: 0;
@@ -596,6 +666,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fffdfd;
 }
 
 .gift-print-letter-paper {
@@ -603,38 +674,35 @@ button:disabled {
   z-index: 1;
   width: 100%;
   min-height: 238mm;
-  border: 1px solid rgba(190, 24, 93, 0.26);
-  border-radius: 8mm;
-  padding: 17mm;
-  background:
-    linear-gradient(rgba(190, 24, 93, 0.06) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.82);
-  background-size: 100% 10mm;
-  box-shadow: 0 8mm 24mm rgba(126, 22, 72, 0.12);
+  border: 1px solid rgba(126, 22, 72, 0.16);
+  border-radius: 4mm;
+  padding: 18mm 19mm;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 5mm 18mm rgba(126, 22, 72, 0.08);
 }
 
 .gift-print-letter-paper h1 {
   margin: 0;
   color: #4c102f;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: 42pt;
+  font-size: 38pt;
   line-height: 1;
 }
 
 .gift-print-letter-message {
-  margin: 12mm 0 0;
+  margin: 11mm 0 0;
   white-space: pre-wrap;
-  color: #5f1a41;
+  color: #4a1834;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: 15pt;
-  line-height: 1.5;
+  font-size: 14.5pt;
+  line-height: 1.62;
 }
 
 .gift-print-letter-signature {
-  margin: 12mm 0 0;
+  margin: 10mm 0 0;
   color: #be185d;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: 24pt;
+  font-size: 23pt;
   text-align: right;
 }
 
@@ -643,9 +711,9 @@ button:disabled {
   grid-template-columns: 1fr 40mm;
   align-items: center;
   gap: 8mm;
-  margin-top: 12mm;
-  border-top: 1px solid rgba(190, 24, 93, 0.18);
-  padding-top: 8mm;
+  margin-top: 10mm;
+  border-top: 1px solid rgba(126, 22, 72, 0.12);
+  padding-top: 7mm;
 }
 
 .gift-print-letter-footer span {
@@ -665,14 +733,15 @@ button:disabled {
 .gift-print-letter-qr {
   display: flex;
   justify-content: center;
-  border-radius: 4mm;
+  border: 1px solid rgba(126, 22, 72, 0.1);
+  border-radius: 3mm;
   background: #ffffff;
-  padding: 3mm;
+  padding: 2.5mm;
 }
 
 .gift-print-letter-qr img {
-  width: 34mm;
-  height: 34mm;
+  width: 32mm;
+  height: 32mm;
 }
 
 .gift-print-fold-mark {

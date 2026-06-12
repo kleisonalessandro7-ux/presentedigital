@@ -971,10 +971,10 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   const experienceStarted = soundReady && surpriseUnlocked && !sealed;
   const particles = useMemo(
     () =>
-      Array.from({ length: 28 }, (_, index) => ({
+      Array.from({ length: 14 }, (_, index) => ({
         left: `${(index * 29 + 7) % 100}%`,
-        size: `${7 + (index % 6) * 3}px`,
-        duration: `${9 + (index % 8)}s`,
+        size: `${5 + (index % 5) * 2}px`,
+        duration: `${12 + (index % 8)}s`,
         delay: `${-1 * ((index * 0.55) % 9)}s`,
         drift: `${(index % 2 === 0 ? 1 : -1) * (26 + (index % 6) * 14)}px`
       })),
@@ -982,12 +982,35 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
   );
   const petals = useMemo(
     () =>
-      Array.from({ length: 14 }, (_, index) => ({
+      Array.from({ length: 8 }, (_, index) => ({
         left: `${(index * 41 + 13) % 100}%`,
         width: `${8 + (index % 5) * 3}px`,
         duration: `${11 + (index % 9)}s`,
         delay: `${-1 * ((index * 0.72) % 12)}s`,
         drift: `${(index % 2 === 0 ? 1 : -1) * (70 + (index % 5) * 24)}px`
+      })),
+    []
+  );
+  const skyStars = useMemo(
+    () =>
+      Array.from({ length: 72 }, (_, index) => ({
+        left: `${(index * 37 + 11) % 100}%`,
+        top: `${(index * 53 + 7) % 100}%`,
+        size: `${1 + (index % 4) * 0.75}px`,
+        opacity: `${0.28 + (index % 6) * 0.1}`,
+        delay: `${-1 * ((index * 0.37) % 4)}s`,
+        duration: `${2.8 + (index % 7) * 0.45}s`
+      })),
+    []
+  );
+  const skyShootingStars = useMemo(
+    () =>
+      Array.from({ length: 6 }, (_, index) => ({
+        top: `${8 + index * 13}%`,
+        left: `${-18 - index * 10}%`,
+        delay: `${index * 2.7}s`,
+        duration: `${4.8 + index * 0.45}s`,
+        width: `${92 + index * 14}px`
       })),
     []
   );
@@ -1286,6 +1309,40 @@ export function GiftExperience({ gift }: GiftExperienceProps) {
               transition={{ duration: 1.2, ease: "easeInOut" }}
             />
           </AnimatePresence>
+
+          <div className="starry-sky-layer pointer-events-none absolute inset-0 overflow-hidden">
+            {skyStars.map((star, index) => (
+              <span
+                key={`sky-star-${index}`}
+                className="sky-star"
+                style={
+                  {
+                    left: star.left,
+                    top: star.top,
+                    "--star-size": star.size,
+                    "--star-opacity": star.opacity,
+                    "--star-delay": star.delay,
+                    "--star-duration": star.duration
+                  } as CSSProperties
+                }
+              />
+            ))}
+            {skyShootingStars.map((star, index) => (
+              <span
+                key={`sky-shooting-${index}`}
+                className="sky-shooting-star"
+                style={
+                  {
+                    left: star.left,
+                    top: star.top,
+                    "--shooting-delay": star.delay,
+                    "--shooting-duration": star.duration,
+                    "--shooting-width": star.width
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
 
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             {particles.map((particle, index) => (
@@ -2734,11 +2791,13 @@ function EndingSlide({
         <p className={`mt-6 max-w-2xl text-lg leading-8 ${visual.muted}`}>
           {gift.finalSignature || reasons[0] || "Obrigado por existir nesse pedaço bonito da minha vida."}
         </p>
-        <div className="mt-9 flex flex-wrap gap-3">
+        <div className="mt-8 rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-xl">
+          <p className="mb-3 text-xs font-bold uppercase text-pink-100">Acoes principais</p>
+          <div className="grid gap-2 sm:grid-cols-2">
           <button
             type="button"
             onClick={onReplay}
-            className="inline-flex h-12 items-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-slate-950 shadow-glow transition hover:bg-pink-100"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-slate-950 shadow-glow transition hover:bg-pink-100"
           >
             <RotateCcw size={17} aria-hidden="true" />
             Ver de novo
@@ -2746,7 +2805,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={showRandomMemory}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Sparkles size={17} aria-hidden="true" />
             Mais uma lembrança
@@ -2754,7 +2813,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={shareGiftLink}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Share2 size={17} aria-hidden="true" />
             Compartilhar
@@ -2762,7 +2821,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={sendByWhatsApp}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Share2 size={17} aria-hidden="true" />
             WhatsApp
@@ -2771,16 +2830,22 @@ function EndingSlide({
             <button
               type="button"
               onClick={onOpenMusic}
-              className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white transition hover:bg-white/16 sm:col-span-2"
             >
               <Volume2 size={17} aria-hidden="true" />
               Abrir trilha
             </button>
           ) : null}
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-xl">
+          <p className="mb-3 text-xs font-bold uppercase text-pink-100">Guardar e imprimir</p>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <button
             type="button"
             onClick={copyGiftLink}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Copy size={17} aria-hidden="true" />
             {copied ? "Copiado" : "Copiar link"}
@@ -2789,7 +2854,7 @@ function EndingSlide({
             type="button"
             onClick={downloadQrCode}
             disabled={!qrUrl}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16 disabled:opacity-45"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16 disabled:opacity-45"
           >
             <Download size={17} aria-hidden="true" />
             Baixar QR
@@ -2797,7 +2862,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={onPrintInvite}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Printer size={17} aria-hidden="true" />
             Convite
@@ -2805,7 +2870,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={onPrintCoupons}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <Ticket size={17} aria-hidden="true" />
             Cupons
@@ -2813,7 +2878,7 @@ function EndingSlide({
           <button
             type="button"
             onClick={onPrintLetter}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/14 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/16"
           >
             <BookOpen size={17} aria-hidden="true" />
             Carta
@@ -2821,13 +2886,14 @@ function EndingSlide({
           <button
             type="button"
             onClick={onPrintPackage}
-            className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/14 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition hover:bg-white/16"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-pink-200/30 bg-pink-500/18 px-4 text-sm font-bold text-pink-100 transition hover:bg-pink-500/25"
           >
             <ClipboardCheck size={17} aria-hidden="true" />
             Pacote
           </button>
+          </div>
         </div>
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2">
           {[
             { label: "Rever carta", type: "message" as const },
             { label: "Abrir álbum", type: "album" as const },

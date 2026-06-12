@@ -70,6 +70,12 @@ type GiftBuilderProps = {
   currentUserEmail?: string;
 };
 
+type DeliveryGift = {
+  slug: string;
+  url: string;
+  recipientName: string;
+};
+
 const steps = [
   { title: "Nomes", icon: UserRound },
   { title: "Datas", icon: CalendarDays },
@@ -933,6 +939,7 @@ export function GiftBuilder({
   const [uploadingVideos, setUploadingVideos] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [deliveryGift, setDeliveryGift] = useState<DeliveryGift | null>(null);
   const mediaPreviewUrl = useMemo(() => getMediaEmbedUrl(draft.mediaUrl), [draft.mediaUrl]);
 
   useEffect(() => {
@@ -1292,6 +1299,7 @@ export function GiftBuilder({
 
   function resetDraft() {
     setEditingSlug("");
+    setDeliveryGift(null);
     setStep(0);
     setDraft({
       ...initialDraft,
@@ -1367,6 +1375,7 @@ export function GiftBuilder({
     });
 
     const payload = (await response.json().catch(() => ({}))) as {
+      gift?: GiftData;
       url?: string;
       error?: string;
     };
@@ -1378,12 +1387,47 @@ export function GiftBuilder({
     }
 
     window.localStorage.removeItem(draftStorageKey);
-    window.location.href = payload.url;
+    const savedGift = payload.gift;
+    const savedSlug = savedGift?.slug || payload.url.split("/").filter(Boolean).pop() || draft.slug;
+
+    if (savedGift) {
+      setDraft(giftToDraft(savedGift));
+    }
+
+    setEditingSlug(savedSlug);
+    setSaving(false);
+    setDeliveryGift({
+      slug: savedSlug,
+      url: payload.url,
+      recipientName: savedGift?.recipientName || draft.recipientName
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function copyGiftLink(slug: string) {
     const url = `${window.location.origin}/presente/${slug}`;
     await navigator.clipboard.writeText(url);
+  }
+
+  async function copyDeliveryLink() {
+    if (!deliveryGift) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(`${window.location.origin}${deliveryGift.url}`);
+  }
+
+  function sendDeliveryWhatsApp() {
+    if (!deliveryGift) {
+      return;
+    }
+
+    const url = `${window.location.origin}${deliveryGift.url}`;
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`Abre esse presente que fiz para voce: ${url}`)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   }
 
   const requiredReady = steps.slice(0, 4).every((_, index) => stepComplete(index, draft));
@@ -1464,6 +1508,72 @@ export function GiftBuilder({
               Confira as variaveis do Supabase e faca um novo deploy na Vercel.
             </p>
           </div>
+        ) : null}
+
+        {deliveryGift ? (
+          <section className="rounded-2xl border border-pink-200/20 bg-gradient-to-br from-slate-950/80 via-pink-950/35 to-violet-950/50 p-5 shadow-violet backdrop-blur-xl">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-sm font-bold uppercase text-pink-200">Entrega do presente</p>
+                <h2 className="mt-2 font-display text-3xl leading-tight text-white">
+                  Presente de {deliveryGift.recipientName} pronto.
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+                  Imprima a carta, os cupons ou o pacote completo agora, sem precisar procurar na lista.
+                </p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[460px]">
+                <Link
+                  href={deliveryGift.url}
+                  target="_blank"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-glow hover:bg-pink-100"
+                >
+                  <Eye size={16} aria-hidden="true" />
+                  Abrir presente
+                </Link>
+                <button
+                  type="button"
+                  onClick={copyDeliveryLink}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                >
+                  <Copy size={16} aria-hidden="true" />
+                  Copiar link
+                </button>
+                <button
+                  type="button"
+                  onClick={sendDeliveryWhatsApp}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                >
+                  <MessageCircleHeart size={16} aria-hidden="true" />
+                  WhatsApp
+                </button>
+                <Link
+                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=carta`}
+                  target="_blank"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                >
+                  <BookOpen size={16} aria-hidden="true" />
+                  Imprimir carta
+                </Link>
+                <Link
+                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=cupons`}
+                  target="_blank"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/15"
+                >
+                  <Ticket size={16} aria-hidden="true" />
+                  Imprimir cupons
+                </Link>
+                <Link
+                  href={`/presente/${deliveryGift.slug}/imprimir?tipo=pacote`}
+                  target="_blank"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-pink-200/30 bg-pink-500/18 px-4 text-sm font-bold text-pink-100 hover:bg-pink-500/25"
+                >
+                  <ClipboardCheck size={16} aria-hidden="true" />
+                  Pacote completo
+                </Link>
+              </div>
+            </div>
+          </section>
         ) : null}
 
         <section className="grid gap-4 rounded-2xl border border-white/10 bg-slate-950/48 p-4 backdrop-blur-xl xl:grid-cols-[minmax(0,1fr)_360px]">
